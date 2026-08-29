@@ -1,7 +1,10 @@
 """News feed pages and API endpoints."""
 
+import json
+
 from fastapi import APIRouter, Request, Query
 from fastapi.responses import HTMLResponse
+from sqlalchemy import text
 
 from aegis.web.app import templates, is_demo_mode
 from aegis.demo.data import (
@@ -29,15 +32,53 @@ def _enriched_articles() -> list[dict]:
     return articles
 
 
+async def _prod_articles() -> list[dict]:
+    from aegis.db.engine import get_session
+
+    async with get_session() as session:
+        rows = await session.execute(
+            text(
+                "SELECT id, title, url, source, summary, classification, "
+                "impact_score, affected_packages, created_at "
+                "FROM aegis_news ORDER BY created_at DESC LIMIT 200"
+            )
+        )
+        articles = []
+        for r in rows:
+            pkgs = r[7]
+            if isinstance(pkgs, str):
+                try:
+                    pkgs = json.loads(pkgs)
+                except (json.JSONDecodeError, TypeError):
+                    pkgs = []
+            articles.append({
+                "title": r[1],
+                "url": r[2],
+                "source": r[3],
+                "summary": r[4] or "",
+                "classification": r[5] or "unknown",
+                "impact_score": r[6] or 0,
+                "affected_packages": pkgs or [],
+                "published": str(r[8]) if r[8] else "",
+                "enriched_summary": r[4] or "",
+            })
+    return articles
+
+
 @router.get("/news", response_class=HTMLResponse)
 async def news_page(request: Request):
     demo = is_demo_mode()
-    articles = _enriched_articles() if demo else []
+    if demo:
+        articles = _enriched_articles()
+        feeds = DEMO_FEED_NAMES
+    else:
+        articles = await _prod_articles()
+        feeds = sorted(set(a["source"] for a in articles))
 
     return templates.TemplateResponse(request, "news.html", {
         "demo_mode": demo,
         "articles": articles,
-        "feeds": DEMO_FEED_NAMES if demo else [],
+        "feeds": feeds,
         "active_page": "news",
     })
 
@@ -45,7 +86,7 @@ async def news_page(request: Request):
 @router.get("/news/{idx}", response_class=HTMLResponse)
 async def news_detail(request: Request, idx: int):
     demo = is_demo_mode()
-    articles = _enriched_articles() if demo else []
+    articles = _enriched_articles() if demo else await _prod_articles()
 
     if idx < 0 or idx >= len(articles):
         return templates.TemplateResponse(request, "news_detail.html", {
@@ -76,10 +117,11 @@ async def api_news_articles(
     classification: str | None = Query(None),
     search: str | None = Query(None),
 ):
-    if not is_demo_mode():
-        return {"articles": [], "total": 0}
+    if is_demo_mode():
+        articles = _enriched_articles()
+    else:
+        articles = await _prod_articles()
 
-    articles = _enriched_articles()
     if classification and classification != "all":
         articles = [a for a in articles if a["classification"] == classification]
     if search:

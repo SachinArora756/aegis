@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
+from sqlalchemy import text
 
 from aegis.web.app import templates, is_demo_mode
 from aegis.demo.data import (
@@ -52,10 +53,53 @@ def _build_match_incidents() -> list[dict]:
     return incidents
 
 
+async def _prod_match_incidents() -> list[dict]:
+    from aegis.db.engine import get_session
+
+    async with get_session() as session:
+        rows = await session.execute(
+            text(
+                "SELECT m.id, n.title, n.source, m.repo, m.component_name, "
+                "m.version_in_use, m.vulnerable_versions, m.is_vulnerable, "
+                "m.ecosystem, m.matched_at "
+                "FROM aegis_match_result m "
+                "JOIN aegis_news n ON n.id = m.news_id "
+                "ORDER BY m.matched_at DESC LIMIT 200"
+            )
+        )
+        by_article: dict[str, dict] = {}
+        for r in rows:
+            title = r[1]
+            if title not in by_article:
+                by_article[title] = {
+                    "title": title,
+                    "source": r[2],
+                    "published": str(r[9]) if r[9] else "",
+                    "impact_score": 0,
+                    "severity": "high" if r[7] else "medium",
+                    "packages": [],
+                }
+            by_article[title]["packages"].append({
+                "name": r[4],
+                "ecosystem": r[8],
+                "vulnerable_versions": r[6],
+                "status": "found_vulnerable" if r[7] else "found_safe",
+                "total_repos_using": 1,
+                "safe_repos_count": 0 if r[7] else 1,
+                "vulnerable_repos": [{"repo": r[3], "version": r[5]}] if r[7] else [],
+                "safe_repos_sample": [{"repo": r[3], "version": r[5]}] if not r[7] else [],
+                "validator_status": None,
+            })
+    return list(by_article.values())
+
+
 @router.get("/match", response_class=HTMLResponse)
 async def match_page(request: Request):
     demo = is_demo_mode()
-    incidents = _build_match_incidents() if demo else []
+    if demo:
+        incidents = _build_match_incidents()
+    else:
+        incidents = await _prod_match_incidents()
 
     vulnerable_count = sum(
         1 for inc in incidents for pkg in inc.get("packages", [])
@@ -88,6 +132,6 @@ async def api_match_results():
 
 @router.get("/api/match/incidents")
 async def api_match_incidents():
-    if not is_demo_mode():
-        return {"incidents": []}
-    return {"incidents": _build_match_incidents()}
+    if is_demo_mode():
+        return {"incidents": _build_match_incidents()}
+    return {"incidents": await _prod_match_incidents()}

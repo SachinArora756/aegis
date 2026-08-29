@@ -13,7 +13,7 @@ SBOM/SCA Pipeline          News Ingestion Agent
   Cartograph                   22 RSS feeds + APIs
   Auditor                      Relevance filter
   Fuse (PURL merge)            3-phase dedup
-  Sentinel                     LLM enrichment (Claude)
+  Sentinel                     LLM enrichment (Gemini)
   Licenser                     Version recovery
         \                    /
          --- Match Engine ---
@@ -28,7 +28,7 @@ SBOM/SCA Pipeline          News Ingestion Agent
 ### Key Features
 
 - **SBOM Scanning**: Discovers dependencies via Cartograph, scans for vulnerabilities via Sentinel, resolves licenses via a 4-tier pipeline (pattern rules, deps.dev, GitHub, manual)
-- **News Ingestion**: Monitors 22 security feeds (Socket.dev, Snyk, CISA, NVD, etc.), filters by relevance, deduplicates with fuzzy + LLM matching, enriches via Claude
+- **News Ingestion**: Monitors 22 security feeds (Socket.dev, Snyk, CISA, NVD, etc.), filters by relevance, deduplicates with fuzzy + LLM matching, enriches via Gemini
 - **Match Engine**: Cross-references news articles against your SBOM inventory, identifies vulnerable repos with semver comparison
 - **Validator**: Spawns ECS Fargate tasks for reachability analysis — confirms if vulnerable code paths are actually exercised
 - **Ask Aegis (RAG Chatbot)**: Natural-language Q&A about your supply chain — retrieves from SBOM, news, match results, and remediation guides
@@ -96,14 +96,12 @@ Required environment variables:
 | Variable | Purpose | Cost |
 |---|---|---|
 | `DATABASE_URL` | PostgreSQL connection string | Free (AWS RDS free tier) |
-| `GEMINI_API_KEY` | Google Gemini for LLM enrichment + chat | Free (15 RPM) |
-| `HF_API_KEY` | Hugging Face embeddings for RAG | Free |
+| `GEMINI_API_KEY` | Google Gemini for LLM + embeddings + chat | Free (15 RPM) |
 | `SLACK_BOT_TOKEN` | Slack alerts | Free |
 | `SLACK_CHANNEL_ID` | Target Slack channel | Free |
 
-Get your free API keys:
+Get your free API key:
 - **Gemini**: https://aistudio.google.com/apikey
-- **Hugging Face**: https://huggingface.co/settings/tokens
 
 ### 3. Initialize Database
 
@@ -154,7 +152,7 @@ aegis/
     fetcher.py         RSS + API fetcher (22 sources)
     filter.py          Keyword relevance filter
     dedup.py           3-phase deduplication
-    enricher.py        Claude-based classification
+    enricher.py        LLM-based classification
   match/
     engine.py          SBOM x News cross-reference
   validator/
@@ -162,10 +160,10 @@ aegis/
   notify/
     slack.py           Slack alert formatting
   rag/
-    embedder.py        Text embedding (Voyage AI / mock)
+    embedder.py        Text embedding (Gemini / mock)
     store.py           Vector store (pgvector / in-memory)
     retriever.py       Context retrieval
-    chat.py            Chat engine (Claude / mock)
+    chat.py            Chat engine (Gemini / mock)
     remediation.py     Fix recommendation engine
     knowledge.py       Static remediation guides
     ingest.py          Data indexing pipeline
@@ -195,7 +193,7 @@ aegis/
 
 - **Backend**: Python 3.11+, FastAPI, SQLAlchemy (async), Click
 - **Database**: PostgreSQL 16 + pgvector
-- **AI/ML**: Google Gemini (enrichment + chat, free tier), Hugging Face (embeddings, free tier)
+- **AI/ML**: Google Gemini (LLM + embeddings + chat, free tier)
 - **Frontend**: Jinja2, Tailwind CSS, vanilla JS, WebSocket streaming
 - **Scanning**: Cartograph (SBOM), Auditor (licenses), Sentinel (vulnerabilities)
 - **Alerts**: Slack Bot API

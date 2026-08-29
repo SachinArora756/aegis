@@ -51,13 +51,10 @@ class Settings(BaseSettings):
     llm_provider: str = "gemini"
     gemini_api_key: str = ""
 
-    # Hugging Face (free embeddings)
-    hf_api_key: str = ""
-
     # RAG
     voyage_api_key: str = ""
-    rag_embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
-    rag_embedding_dimensions: int = 384
+    rag_embedding_model: str = "gemini-embedding-001"
+    rag_embedding_dimensions: int = 3072
     rag_top_k: int = 5
     rag_chat_model: str = "gemini-3.6-flash"
 

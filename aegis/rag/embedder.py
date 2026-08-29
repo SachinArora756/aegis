@@ -46,7 +46,9 @@ class GeminiEmbedder(EmbedderBase):
     ) -> None:
         if not HAS_GEMINI:
             raise ImportError("google-genai is not installed. pip install google-genai")
-        key = api_key or os.environ.get("GEMINI_API_KEY", "")
+        from aegis.config import get_settings
+        _settings = get_settings()
+        key = api_key or os.environ.get("GEMINI_API_KEY", "") or _settings.gemini_api_key
         if not key:
             raise ValueError("GEMINI_API_KEY is required for GeminiEmbedder")
         self._client = genai.Client(api_key=key)

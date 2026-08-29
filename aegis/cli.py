@@ -95,8 +95,14 @@ def news_run():
     click.echo("Running news ingestion cycle ...")
 
     try:
-        agent = NewsIngestionAgent()
-        result = _run(agent.run_once())
+        from aegis.db.engine import get_session
+
+        async def _news_run():
+            agent = NewsIngestionAgent()
+            async with get_session() as session:
+                return await agent.run_once(session)
+
+        result = _run(_news_run())
     except Exception as exc:
         click.secho(f"News ingestion failed: {exc}", fg="red", err=True)
         raise SystemExit(1)
@@ -122,10 +128,12 @@ def news_watch(interval):
     minutes = interval or settings.feed_poll_interval_minutes
     click.echo(f"Starting continuous news monitoring (every {minutes} min). Ctrl+C to stop.")
 
+    from aegis.db.engine import _get_session_factory
+
     agent = NewsIngestionAgent()
 
     try:
-        _run(agent.run_continuous(interval_minutes=minutes))
+        _run(agent.run_continuous(session_factory=_get_session_factory()))
     except KeyboardInterrupt:
         click.echo("\nStopped.")
 

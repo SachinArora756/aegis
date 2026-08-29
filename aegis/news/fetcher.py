@@ -317,9 +317,14 @@ class FeedFetcher:
             all_articles.extend(result.articles)
             new_states[key] = result.state
 
-        all_articles.sort(
-            key=lambda a: a.get("published") or datetime.min.replace(tzinfo=timezone.utc),
-            reverse=True,
-        )
+        def _sort_key(a):
+            pub = a.get("published")
+            if pub is None:
+                return datetime.min.replace(tzinfo=timezone.utc)
+            if pub.tzinfo is None:
+                return pub.replace(tzinfo=timezone.utc)
+            return pub
+
+        all_articles.sort(key=_sort_key, reverse=True)
         logger.info("Total articles fetched: %d", len(all_articles))
         return all_articles, new_states

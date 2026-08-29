@@ -37,21 +37,24 @@ class LLMClient:
         api_key: str | None = None,
         model: str | None = None,
     ) -> None:
-        self._provider = provider or os.environ.get("LLM_PROVIDER", "gemini")
+        from aegis.config import get_settings
+        _settings = get_settings()
+
+        self._provider = provider or os.environ.get("LLM_PROVIDER", _settings.llm_provider)
 
         if self._provider == "gemini":
             if not HAS_GEMINI:
                 raise ImportError("google-genai is not installed. pip install google-genai")
-            key = api_key or os.environ.get("GEMINI_API_KEY", "")
+            key = api_key or os.environ.get("GEMINI_API_KEY", "") or _settings.gemini_api_key
             if not key:
                 raise ValueError("GEMINI_API_KEY is required")
             self._gemini_client = genai.Client(api_key=key)
-            self._model_name = model or "gemini-3.6-flash"
+            self._model_name = model or _settings.rag_chat_model
 
         elif self._provider == "anthropic":
             if not HAS_ANTHROPIC:
                 raise ImportError("anthropic is not installed. pip install anthropic")
-            key = api_key or os.environ.get("ANTHROPIC_API_KEY", "")
+            key = api_key or os.environ.get("ANTHROPIC_API_KEY", "") or _settings.anthropic_api_key
             if not key:
                 raise ValueError("ANTHROPIC_API_KEY is required")
             self._anthropic_client = anthropic.AsyncAnthropic(api_key=key)

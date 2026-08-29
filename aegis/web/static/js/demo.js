@@ -99,7 +99,7 @@ function handleEvent(event) {
 }
 
 function setButtons(enabled) {
-  ['btn-full', 'btn-sbom', 'btn-news', 'btn-match'].forEach(id => {
+  ['btn-full', 'btn-sbom', 'btn-news', 'btn-match', 'btn-chat'].forEach(id => {
     const btn = document.getElementById(id);
     if (btn) {
       btn.disabled = !enabled;
@@ -137,7 +137,7 @@ function updateLineCount() {
 }
 
 /* Pipeline diagram */
-const STAGES = ['sbom', 'news', 'match', 'validator'];
+const STAGES = ['sbom', 'news', 'match', 'validator', 'chat'];
 
 function resetPipeline() {
   STAGES.forEach(s => {

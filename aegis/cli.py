@@ -256,6 +256,113 @@ def demo_match(fast):
 
 
 # ---------------------------------------------------------------------------
+# RAG sub-group
+# ---------------------------------------------------------------------------
+
+@main.group()
+def rag():
+    """RAG (Retrieval-Augmented Generation) — chatbot, remediation, knowledge indexing."""
+
+
+@rag.command("chat")
+@click.option("--demo", is_flag=True, help="Use demo mode (mock data, no API keys)")
+def rag_chat(demo):
+    """Start an interactive Ask Aegis chat session in the terminal."""
+    from aegis.rag import get_chat_engine
+
+    engine = get_chat_engine(demo=demo)
+    click.secho("Ask Aegis — Security Chatbot", bold=True)
+    if demo:
+        click.secho("  (demo mode — answers from mock knowledge base)\n", fg="cyan")
+    else:
+        click.secho("  (production — RAG retrieval + Claude)\n", fg="green")
+    click.echo("Type your question, or 'quit' to exit.\n")
+
+    async def _chat_loop():
+        while True:
+            try:
+                question = click.prompt(click.style("You", fg="blue"), prompt_suffix="> ")
+            except (EOFError, KeyboardInterrupt):
+                click.echo("\nGoodbye.")
+                break
+            if question.strip().lower() in ("quit", "exit", "q"):
+                click.echo("Goodbye.")
+                break
+            result = await engine.answer(question)
+            click.echo()
+            click.echo(click.style("Aegis", fg="green", bold=True) + ": " + result.answer)
+            if result.sources:
+                click.echo()
+                click.secho("  Sources:", fg="bright_black")
+                for src in result.sources:
+                    click.echo(f"    [{src['type']}] {src['title']} ({src.get('score', '')})")
+            click.echo()
+
+    _run(_chat_loop())
+
+
+@rag.command("index")
+@click.option("--demo", is_flag=True, help="Index demo data into in-memory store")
+def rag_index(demo):
+    """Index SBOM, news, and remediation data into the RAG vector store."""
+    if demo:
+        click.echo("Indexing remediation guides into in-memory vector store...")
+        from aegis.rag.embedder import MockEmbedder
+        from aegis.rag.ingest import index_remediation_guides
+        from aegis.rag.store import InMemoryVectorStore
+
+        embedder = MockEmbedder()
+        store = InMemoryVectorStore()
+        count = _run(index_remediation_guides(embedder, store))
+        click.secho(f"Indexed {count} remediation guides.", fg="green")
+    else:
+        click.echo("Indexing into production vector store (requires VOYAGE_API_KEY + Postgres)...")
+        from aegis.rag.embedder import VoyageEmbedder
+        from aegis.rag.ingest import index_remediation_guides
+        from aegis.rag.store import PgVectorStore
+
+        embedder = VoyageEmbedder()
+        store = PgVectorStore()
+        count = _run(index_remediation_guides(embedder, store))
+        click.secho(f"Indexed {count} remediation guides into pgvector.", fg="green")
+
+
+@demo.command("chat")
+@click.option("--fast", is_flag=True, help="Skip simulated delays")
+def demo_chat(fast):
+    """Demo the Ask Aegis RAG chatbot with pre-built answers."""
+    from aegis.rag import get_chat_engine
+
+    engine = get_chat_engine(demo=True)
+    questions = [
+        "Are we affected by the latest npm supply chain attack?",
+        "What are our critical vulnerabilities?",
+        "What remediation steps should we take for axios?",
+    ]
+
+    click.echo()
+    click.secho("Ask Aegis — Demo Chat", bold=True)
+    click.secho("  Demonstrating RAG-powered security chatbot with mock data\n", fg="cyan")
+
+    for q in questions:
+        click.echo(click.style("You", fg="blue", bold=True) + f"> {q}")
+        result = _run(engine.answer(q))
+        click.echo()
+        click.echo(click.style("Aegis", fg="green", bold=True) + f": {result.answer}")
+        if result.sources:
+            click.echo()
+            click.secho("  Sources:", fg="bright_black")
+            for src in result.sources:
+                click.echo(f"    [{src['type']}] {src['title']} ({src.get('score', '')})")
+        click.echo()
+        if not fast:
+            import time
+            time.sleep(1.0)
+
+    click.secho("Demo chat complete.", fg="green")
+
+
+# ---------------------------------------------------------------------------
 # Web dashboard
 # ---------------------------------------------------------------------------
 
@@ -327,37 +434,6 @@ def check():
         click.secho("\nAll checks passed.", fg="green")
     else:
         click.secho("\nSome dependencies are missing — see above.", fg="yellow")
-
-
-# ---------------------------------------------------------------------------
-# Web server
-# ---------------------------------------------------------------------------
-
-@main.command()
-@click.option("--port", default=8000, type=int, help="Port to listen on")
-@click.option("--host", default="127.0.0.1", help="Host to bind to")
-@click.option("--demo", is_flag=True, help="Start in demo mode (no DB/API keys required)")
-@click.option("--reload", "do_reload", is_flag=True, help="Auto-reload on code changes")
-def web(port, host, demo, do_reload):
-    """Start the Aegis web dashboard."""
-    import uvicorn
-
-    mode = "DEMO" if demo else "LIVE"
-    click.echo(f"Starting Aegis web dashboard ({mode} mode) on http://{host}:{port}")
-
-    if demo:
-        click.echo("  Demo mode: all data is simulated, no external services needed.")
-    click.echo("  Press Ctrl+C to stop.\n")
-
-    os.environ["AEGIS_WEB_DEMO"] = "1" if demo else "0"
-
-    uvicorn.run(
-        "aegis.web.app:create_app",
-        factory=True,
-        host=host,
-        port=port,
-        reload=do_reload,
-    )
 
 
 if __name__ == "__main__":

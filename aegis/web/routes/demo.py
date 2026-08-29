@@ -308,6 +308,12 @@ async def _stream_full(ws: WebSocket, fast: bool):
     await _send_highlight(ws, "validator", "active")
     await _stream_validator(ws, fast)
     await _send_highlight(ws, "validator", "done")
+    await asyncio.sleep(delay)
+
+    await _send_phase(ws, "Phase 5: Ask Aegis (RAG)", 5)
+    await _send_highlight(ws, "chat", "active")
+    await _stream_chat(ws, fast)
+    await _send_highlight(ws, "chat", "done")
 
     await _send(ws, "step", "")
     await _send(ws, "header", "═" * 55)
@@ -318,7 +324,86 @@ async def _stream_full(ws: WebSocket, fast: bool):
     await _send(ws, "info", "  Source: Socket.dev RSS → detected within 30 minutes")
     await _send(ws, "alert", "  SBOM match: 40 repos scanned, 3 vulnerable, 37 safe")
     await _send(ws, "alert", "  Reachability: 2 repos actively calling vulnerable code paths")
+    await _send(ws, "info", "  RAG: chatbot answered with 4 sources, remediation plan generated")
     await _send(ws, "info", "  Action: Slack alerts sent, validators confirmed blast radius")
+
+    await asyncio.sleep(delay)
+    await _send_phase(ws, "Phase 5: Ask Aegis (RAG)", 5)
+    await _send_highlight(ws, "chat", "active")
+    await _stream_chat(ws, fast)
+    await _send_highlight(ws, "chat", "done")
+
+
+async def _stream_chat(ws: WebSocket, fast: bool):
+    delay = 0.1 if fast else 0.5
+
+    await _send(ws, "header", "ASK AEGIS: RAG-Powered Security Chatbot")
+    await asyncio.sleep(delay)
+
+    await _send(ws, "step", "[1/4] Initializing knowledge base...")
+    await _send(ws, "detail", "    Loading: news articles, SBOM inventory, match results, remediation guides")
+    await asyncio.sleep(delay)
+    await _send(ws, "ok", "  ✓ Knowledge base loaded (146 SBOM components, 5 news articles, 12 remediation guides)")
+
+    await _send(ws, "step", "[2/4] Demo question: 'Are we affected by the axios npm compromise?'")
+    await asyncio.sleep(delay)
+    await _send(ws, "detail", "    Searching vector store for relevant context...")
+    await asyncio.sleep(delay * 0.8)
+    await _send(ws, "detail", "    Retrieved 4 sources:")
+    await _send(ws, "detail", "      [NEWS]        Axios npm Package Compromised (96% match)")
+    await _send(ws, "detail", "      [MATCH]       Match Result: axios affects 3 repos (94% match)")
+    await _send(ws, "detail", "      [REMEDIATION] npm Package Compromise Playbook (91% match)")
+    await _send(ws, "detail", "      [NEWS]        Socket.dev: Supply Chain Attack Detection (82% match)")
+    await asyncio.sleep(delay)
+    await _send(ws, "ok", "  ✓ Context retrieved — generating answer...")
+
+    await _send(ws, "step", "[3/4] Streaming response...")
+    await asyncio.sleep(delay)
+    answer_lines = [
+        "  Yes, we are affected by the axios npm compromise (CVE-2026-40112).",
+        "",
+        "  Affected repos in our inventory:",
+        "    • checkout-service — axios@1.14.1 (VULNERABLE, reachable)",
+        "    • payments-web    — axios@1.14.1 (VULNERABLE, reachable)",
+        "    • admin-portal    — axios@0.30.4 (VULNERABLE, not reachable)",
+        "",
+        "  37 other repos use axios at non-vulnerable versions and are safe.",
+        "",
+        "  Recommended actions:",
+        "    1. Immediately upgrade axios to >=1.14.2 in all three repos",
+        "    2. Rotate any credentials that may have been exfiltrated",
+        "    3. Run npm audit across all Node.js projects",
+    ]
+    for line in answer_lines:
+        await _send(ws, "info", line)
+        await asyncio.sleep(delay * 0.15)
+
+    await _send(ws, "step", "[4/4] RAG-augmented enrichment demo...")
+    await asyncio.sleep(delay)
+    await _send(ws, "detail", "    Finding similar past incidents for context...")
+    await asyncio.sleep(delay * 0.6)
+    await _send(ws, "detail", "      Similar: event-stream npm compromise (2018) — 92% relevance")
+    await _send(ws, "detail", "      Similar: ua-parser-js npm hijack (2021) — 89% relevance")
+    await _send(ws, "ok", "  ✓ Historical context added to enrichment prompt")
+    await asyncio.sleep(delay * 0.5)
+    await _send(ws, "detail", "    Generating remediation recommendations...")
+    await asyncio.sleep(delay * 0.8)
+    await _send_box(ws, [
+        "🔧 Remediation: axios compromise (Priority: P0)",
+        "",
+        "  Step 1: Upgrade axios in all 3 affected repos",
+        "    checkout-service: npm install axios@1.14.2",
+        "    payments-web:     npm install axios@1.14.2",
+        "    admin-portal:     npm install axios@0.30.5",
+        "",
+        "  Step 2: Rotate all credentials and secrets",
+        "  Step 3: Audit network logs for C2 communication",
+        "  Step 4: Run npm audit --production",
+    ])
+    await _send(ws, "ok", "  ✓ Remediation plan generated")
+
+    await _send(ws, "info", "")
+    await _send(ws, "info", "  Ask Aegis Summary: RAG chatbot answered with 4 sources, remediation plan generated")
 
 
 @router.websocket("/api/demo/stream/{section}")
@@ -331,6 +416,7 @@ async def ws_demo(websocket: WebSocket, section: str):
             "news": _stream_news,
             "match": _stream_match,
             "validator": _stream_validator,
+            "chat": _stream_chat,
         }
         handler = handlers.get(section)
         if handler is None:

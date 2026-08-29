@@ -499,6 +499,151 @@ class DemoRunner:
         ])
         click.echo()
 
+    # ── RAG / Ask Aegis demo ───────────────────────────────────────────
+
+    def run_rag_demo(self) -> None:
+        self._header("ASK AEGIS: RAG-Powered Security Chatbot")
+
+        self._step("[1/4] Initializing knowledge base...")
+        self._detail("Loading: news articles, SBOM inventory, match results, remediation guides")
+        self._pause(0.6)
+        self._ok("Knowledge base loaded (146 SBOM components, 5 news articles, 12 remediation guides)")
+        click.echo()
+
+        self._step('[2/4] Demo question: "Are we affected by the axios npm compromise?"')
+        self._detail("Searching vector store for relevant context...")
+        self._pause(0.8)
+        self._detail("Retrieved 4 sources:")
+        self._detail("  [NEWS]        Axios npm Package Compromised (96% match)")
+        self._detail("  [MATCH]       Match Result: axios affects 3 repos (94% match)")
+        self._detail("  [REMEDIATION] npm Package Compromise Playbook (91% match)")
+        self._detail("  [NEWS]        Socket.dev: Supply Chain Attack Detection (82% match)")
+        self._pause(0.5)
+        self._ok("Context retrieved — generating answer...")
+        click.echo()
+
+        self._step("[3/4] Streaming response...")
+        self._pause(0.4)
+
+        answer_lines = [
+            "Yes, we are affected by the axios npm compromise (CVE-2026-40112).",
+            "",
+            "Affected repos in our inventory:",
+            "  • checkout-service — axios@1.14.1 (VULNERABLE, reachable)",
+            "  • payments-web    — axios@1.14.1 (VULNERABLE, reachable)",
+            "  • admin-portal    — axios@0.30.4 (VULNERABLE, not reachable)",
+            "",
+            "37 other repos use axios at non-vulnerable versions and are safe.",
+            "",
+            "Recommended actions:",
+            "  1. Immediately upgrade axios to >=1.14.2 in all three repos",
+            "  2. Rotate any credentials that may have been exfiltrated",
+            "  3. Run npm audit across all Node.js projects",
+        ]
+        for line in answer_lines:
+            click.echo(click.style(f"        {line}", fg="cyan"))
+            self._pause(0.05)
+        click.echo()
+
+        self._step("[4/4] RAG-augmented enrichment demo...")
+        self._detail("Finding similar past incidents for context...")
+        self._pause(0.6)
+        self._detail("  Similar: event-stream npm compromise (2018) — 92% relevance")
+        self._detail("  Similar: ua-parser-js npm hijack (2021) — 89% relevance")
+        self._ok("Historical context added to enrichment prompt")
+        self._pause(0.4)
+        self._detail("Generating remediation recommendations...")
+        self._pause(0.8)
+
+        self._box([
+            click.style("🔧 Remediation: axios compromise (Priority: P0)", fg="cyan", bold=True),
+            "",
+            "  Step 1: Upgrade axios in all 3 affected repos",
+            "    checkout-service: npm install axios@1.14.2",
+            "    payments-web:     npm install axios@1.14.2",
+            "    admin-portal:     npm install axios@0.30.5",
+            "",
+            "  Step 2: Rotate all credentials and secrets",
+            "  Step 3: Audit network logs for C2 communication",
+            "  Step 4: Run npm audit --production",
+        ])
+        click.echo()
+        self._ok("Remediation plan generated")
+        click.echo()
+
+    # ── RAG chatbot demo ───────────────────────────────────────────────
+
+    def run_rag_demo(self) -> None:
+        self._header("ASK AEGIS: RAG-Powered Security Chatbot")
+
+        self._step("[1/4] Initializing knowledge base...")
+        self._detail("Loading: news articles, SBOM inventory, match results, remediation guides")
+        self._pause(0.6)
+        self._ok("Knowledge base loaded (146 SBOM components, 5 news articles, 12 remediation guides)")
+        click.echo()
+
+        self._step('[2/4] Demo question: "Are we affected by the axios npm compromise?"')
+        self._pause(0.5)
+        self._detail("Searching vector store for relevant context...")
+        self._pause(0.8)
+        self._detail("Retrieved 4 sources:")
+        self._detail("  [NEWS]        Axios npm Package Compromised (96% match)")
+        self._detail("  [MATCH]       Match Result: axios affects 3 repos (94% match)")
+        self._detail("  [REMEDIATION] npm Package Compromise Playbook (91% match)")
+        self._detail("  [NEWS]        Socket.dev: Supply Chain Attack Detection (82% match)")
+        self._pause(0.5)
+        self._ok("Context retrieved — generating answer...")
+        click.echo()
+
+        self._step("[3/4] Streaming response...")
+        self._pause(0.3)
+        answer_lines = [
+            "Yes, we are affected by the axios npm compromise (CVE-2026-40112).",
+            "",
+            "Affected repos in our inventory:",
+            "  • checkout-service — axios@1.14.1 (VULNERABLE, reachable)",
+            "  • payments-web    — axios@1.14.1 (VULNERABLE, reachable)",
+            "  • admin-portal    — axios@0.30.4 (VULNERABLE, not reachable)",
+            "",
+            "37 other repos use axios at non-vulnerable versions and are safe.",
+            "",
+            "Recommended actions:",
+            "  1. Immediately upgrade axios to >=1.14.2 in all three repos",
+            "  2. Rotate any credentials that may have been exfiltrated",
+            "  3. Run npm audit across all Node.js projects",
+        ]
+        for line in answer_lines:
+            self._info(line)
+            self._pause(0.05)
+        click.echo()
+
+        self._step("[4/4] RAG-augmented enrichment demo...")
+        self._pause(0.5)
+        self._detail("Finding similar past incidents for context...")
+        self._pause(0.6)
+        self._detail("  Similar: event-stream npm compromise (2018) — 92% relevance")
+        self._detail("  Similar: ua-parser-js npm hijack (2021) — 89% relevance")
+        self._ok("Historical context added to enrichment prompt")
+        self._pause(0.5)
+        self._detail("Generating remediation recommendations...")
+        self._pause(0.8)
+
+        self._box([
+            click.style("Remediation: axios compromise (Priority: P0)", fg="cyan", bold=True),
+            "",
+            "  Step 1: Upgrade axios in all 3 affected repos",
+            "    checkout-service: npm install axios@1.14.2",
+            "    payments-web:     npm install axios@1.14.2",
+            "    admin-portal:     npm install axios@0.30.5",
+            "",
+            "  Step 2: Rotate all credentials and secrets",
+            "  Step 3: Audit network logs for C2 communication",
+            "  Step 4: Run npm audit --production",
+        ])
+        click.echo()
+        self._ok("Remediation plan generated")
+        click.echo()
+
     # ── Full end-to-end demo ─────────────────────────────────────────────
 
     def run_full_demo(self) -> None:
@@ -528,6 +673,7 @@ class DemoRunner:
         click.echo(click.style("    2. News Ingestion      — fetch, filter, dedup, enrich", fg="bright_black"))
         click.echo(click.style("    3. Match Engine        — cross-reference news × SBOM", fg="bright_black"))
         click.echo(click.style("    4. Validator           — reachability analysis", fg="bright_black"))
+        click.echo(click.style("    5. Ask Aegis (RAG)     — chatbot, enrichment, remediation", fg="bright_black"))
         click.echo()
 
         self._pause(1.5)
@@ -542,6 +688,9 @@ class DemoRunner:
         self._pause(1.0)
 
         self.run_validator_demo()
+        self._pause(1.0)
+
+        self.run_rag_demo()
 
         # Wrap-up
         click.echo()
@@ -570,6 +719,10 @@ class DemoRunner:
             + click.style(" 2 repos actively calling vulnerable code paths", fg="red")
         )
         click.echo(
+            click.style("  RAG:        ", fg="bright_black")
+            + click.style("Chatbot answered with 4 sources, remediation plan generated", fg="white")
+        )
+        click.echo(
             click.style("  Action:     ", fg="bright_black")
             + click.style("Slack alerts sent, validators confirmed blast radius", fg="white")
         )
@@ -592,6 +745,7 @@ def run_demo(section: str = "full") -> None:
         "news": runner.run_news_demo,
         "match": runner.run_match_demo,
         "validator": runner.run_validator_demo,
+        "chat": runner.run_rag_demo,
     }
     fn = sections.get(section)
     if fn is None:

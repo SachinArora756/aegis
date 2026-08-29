@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Ask Aegis{% endblock %}
+{% block page_title %}Ask Aegis{% endblock %}
+
+{% block content %}
+<div class="flex gap-6 h-[calc(100vh-140px)]">
+
+    <!-- Chat Panel (main) -->
+    <div class="flex-1 flex flex-col min-w-0">
+
+        <!-- Messages area -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto px-2 pb-4 space-y-4">
+
+            <!-- Empty state / Suggestions -->
+            <div id="suggestions" class="flex flex-col items-center justify-center h-full">
+                <div class="w-14 h-14 rounded-2xl bg-indigo-600/20 flex items-center justify-center mb-4">
+                    <span class="text-2xl text-indigo-400 font-bold">A</span>
+                </div>
+                <h2 class="text-lg font-semibold text-gray-200 mb-1">Ask Aegis</h2>
+                <p class="text-sm text-gray-500 mb-6 text-center max-w-md">
+                    Ask me about your supply chain security. I can search your SBOM inventory,
+                    news feed, match results, and remediation guides.
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg w-full">
+                    <button class="suggestion-pill bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 text-sm text-gray-300 hover:border-indigo-500/50 hover:bg-gray-800 cursor-pointer transition-all text-left"
+                            data-question="Are we affected by the latest npm supply chain attack?">
+                        <span class="text-indigo-400 text-xs font-medium block mb-1">Vulnerability Check</span>
+                        Are we affected by the latest npm supply chain attack?
+                    </button>
+                    <button class="suggestion-pill bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 text-sm text-gray-300 hover:border-indigo-500/50 hover:bg-gray-800 cursor-pointer transition-all text-left"
+                            data-question="Which repos use packages with GPL licenses?">
+                        <span class="text-emerald-400 text-xs font-medium block mb-1">License Audit</span>
+                        Which repos use packages with GPL licenses?
+                    </button>
+                    <button class="suggestion-pill bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 text-sm text-gray-300 hover:border-indigo-500/50 hover:bg-gray-800 cursor-pointer transition-all text-left"
+                            data-question="Show me all critical vulnerabilities">
+                        <span class="text-red-400 text-xs font-medium block mb-1">Critical Alerts</span>
+                        Show me all critical vulnerabilities
+                    </button>
+                    <button class="suggestion-pill bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 text-sm text-gray-300 hover:border-indigo-500/50 hover:bg-gray-800 cursor-pointer transition-all text-left"
+                            data-question="What remediation steps should we take for axios?">
+                        <span class="text-amber-400 text-xs font-medium block mb-1">Remediation</span>
+                        What remediation steps should we take for axios?
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Input bar -->
+        <div class="border-t border-gray-700/50 pt-4 pb-2">
+            <div class="flex gap-3 items-end">
+                <div class="flex-1 relative">
+                    <textarea id="chat-input"
+                              rows="1"
+                              class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 resize-none overflow-hidden"
+                              placeholder="Ask about your supply chain security..."
+                              style="max-height: 120px;"></textarea>
+                </div>
+                <button id="chat-send"
+                        class="flex-shrink-0 w-10 h-10 bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-xl flex items-center justify-center transition-colors"
+                        disabled>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
+            <p class="text-[10px] text-gray-600 mt-2 text-center">
+                {% if demo_mode %}
+                Demo mode — answers are pre-built from mock data
+                {% else %}
+                Powered by RAG retrieval + Claude
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Sources Sidebar -->
+    <div id="sources-panel" class="w-72 flex-shrink-0 hidden lg:flex flex-col border-l border-gray-700/50 pl-6">
+        <div class="flex items-center gap-2 mb-4">
+            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Sources</h3>
+            <span id="sources-count" class="px-1.5 py-0.5 bg-gray-700 text-gray-400 text-[10px] font-medium rounded-full hidden">0</span>
+        </div>
+        <div id="sources-list" class="flex-1 overflow-y-auto space-y-3">
+            <p id="sources-empty" class="text-xs text-gray-600 mt-4">
+                Sources will appear here when you ask a question
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/chat.js') }}"></script>
+{% endblock %}

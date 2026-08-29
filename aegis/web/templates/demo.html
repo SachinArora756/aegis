@@ -57,6 +57,19 @@
                 <p class="text-[10px] text-gray-500 stage-status">Idle</p>
             </div>
         </div>
+
+        <span class="text-gray-600 text-lg hidden sm:inline">&rarr;</span>
+
+        <!-- Ask Aegis stage -->
+        <div id="stage-chat" class="pipeline-stage flex items-center gap-3 px-4 py-3 bg-gray-900/50 border border-gray-700/30 rounded-lg min-w-[140px] transition-all">
+            <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0">
+                <span class="text-purple-400 text-sm">&#128172;</span>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-300">Ask Aegis</p>
+                <p class="text-[10px] text-gray-500 stage-status">Idle</p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -73,6 +86,9 @@
     </button>
     <button id="btn-match" class="demo-btn px-4 py-2.5 bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium rounded-lg transition-colors" data-section="match">
         Match Only
+    </button>
+    <button id="btn-chat" class="demo-btn px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium rounded-lg transition-colors" data-section="chat">
+        Chat Only
     </button>
 
     <div class="flex-1"></div>

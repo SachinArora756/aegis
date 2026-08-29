@@ -47,12 +47,14 @@ def create_app(demo: bool | None = None) -> FastAPI:
     from aegis.web.routes.news import router as news_router
     from aegis.web.routes.match import router as match_router
     from aegis.web.routes.demo import router as demo_router
+    from aegis.web.routes.chat import router as chat_router
 
     app.include_router(dashboard_router)
     app.include_router(sbom_router)
     app.include_router(news_router)
     app.include_router(match_router)
     app.include_router(demo_router)
+    app.include_router(chat_router)
 
     @app.exception_handler(404)
     async def not_found(request: Request, exc):

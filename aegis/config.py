@@ -47,6 +47,13 @@ class Settings(BaseSettings):
     ecs_subnets: str = ""
     ecs_security_groups: str = ""
 
+    # RAG
+    voyage_api_key: str = ""
+    rag_embedding_model: str = "voyage-3-lite"
+    rag_embedding_dimensions: int = 1024
+    rag_top_k: int = 5
+    rag_chat_model: str = "claude-sonnet-4-20250514"
+
     # Logging
     log_level: str = "INFO"
 

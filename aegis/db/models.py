@@ -148,3 +148,78 @@ class MatchResult(Base):
     )
 
     news_entry: Mapped[News] = relationship(back_populates="match_results")
+
+
+# ---------------------------------------------------------------------------
+# RAG tables
+# ---------------------------------------------------------------------------
+
+class Embedding(Base):
+    __tablename__ = "aegis_embedding"
+    __table_args__ = (
+        UniqueConstraint("source_type", "source_id", name="uq_aegis_embedding_source"),
+        Index("ix_aegis_embedding_source_type", "source_type"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    source_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    source_id: Mapped[str] = mapped_column(String(512), nullable=False)
+    content_text: Mapped[str] = mapped_column(Text, nullable=False)
+    metadata: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+
+
+class ChatSession(Base):
+    __tablename__ = "aegis_chat_session"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow, nullable=False
+    )
+
+    messages: Mapped[list[ChatMessage]] = relationship(
+        back_populates="session", cascade="all, delete-orphan"
+    )
+
+
+class ChatMessage(Base):
+    __tablename__ = "aegis_chat_message"
+    __table_args__ = (
+        Index("ix_aegis_chat_message_session_id", "session_id"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    session_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("aegis_chat_session.id", ondelete="CASCADE"), nullable=False
+    )
+    role: Mapped[str] = mapped_column(String(16), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    context_refs: Mapped[Optional[list[dict]]] = mapped_column(JSON, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+
+    session: Mapped[ChatSession] = relationship(back_populates="messages")
+
+
+class RemediationGuide(Base):
+    __tablename__ = "aegis_remediation_guide"
+    __table_args__ = (
+        Index("ix_aegis_remediation_guide_vuln_type", "vuln_type"),
+        Index("ix_aegis_remediation_guide_ecosystem", "ecosystem"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    vuln_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    title: Mapped[str] = mapped_column(String(256), nullable=False)
+    ecosystem: Mapped[str] = mapped_column(String(64), nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    steps: Mapped[Optional[list[str]]] = mapped_column(JSON, nullable=True)
+    commands: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
+    severity: Mapped[Optional[str]] = mapped_column(String(16), nullable=True)
+    references: Mapped[Optional[list[str]]] = mapped_column(JSON, nullable=True)

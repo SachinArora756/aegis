@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Match Results{% endblock %}
+{% block page_title %}Match Results{% endblock %}
+
+{% block content %}
+<!-- Summary stats -->
+<div class="flex flex-wrap items-center gap-4 mb-6">
+    <div class="flex items-center gap-2 px-3 py-1.5 bg-gray-800 rounded-lg border border-gray-700/50">
+        <span class="text-red-400 text-xs">&#9888;</span>
+        <span class="text-sm text-gray-300"><strong class="text-white">{{ vulnerable_count }}</strong> vulnerable</span>
+    </div>
+    <div class="flex items-center gap-2 px-3 py-1.5 bg-gray-800 rounded-lg border border-gray-700/50">
+        <span class="text-green-400 text-xs">&#10003;</span>
+        <span class="text-sm text-gray-300"><strong class="text-white">{{ safe_count }}</strong> safe</span>
+    </div>
+    <div class="flex items-center gap-2 px-3 py-1.5 bg-gray-800 rounded-lg border border-gray-700/50">
+        <span class="text-gray-400 text-xs">&#8226;</span>
+        <span class="text-sm text-gray-300"><strong class="text-white">{{ not_found_count }}</strong> not found</span>
+    </div>
+</div>
+
+<!-- Match results grouped by incident -->
+<div class="space-y-6" id="match-results">
+    {% for incident in incidents %}
+    <div class="bg-gray-800 rounded-xl border border-gray-700/50 overflow-hidden">
+        <!-- Incident header -->
+        <div class="px-6 py-4 border-b border-gray-700/50 bg-gray-800">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <h3 class="text-base font-semibold text-white mb-1">{{ incident.title }}</h3>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500">{{ incident.source }}</span>
+                        <span class="text-gray-600">|</span>
+                        <span class="text-xs text-gray-500">{{ incident.published }}</span>
+                    </div>
+                </div>
+                <span class="px-2.5 py-1 rounded text-[10px] font-medium uppercase tracking-wider
+                    {% if incident.severity == 'critical' %}bg-red-500/10 text-red-400 border border-red-500/20
+                    {% elif incident.severity == 'high' %}bg-orange-500/10 text-orange-400 border border-orange-500/20
+                    {% elif incident.severity == 'medium' %}bg-yellow-500/10 text-yellow-400 border border-yellow-500/20
+                    {% else %}bg-blue-500/10 text-blue-400 border border-blue-500/20{% endif %}">
+                    {{ incident.severity }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Packages in this incident -->
+        <div class="divide-y divide-gray-700/30">
+            {% for pkg in incident.packages %}
+            <div class="px-6 py-4">
+                <!-- Package info -->
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="font-mono text-sm text-white font-medium">{{ pkg.name }}</span>
+                    <span class="px-2 py-0.5 bg-indigo-500/10 text-indigo-400 rounded text-xs">{{ pkg.ecosystem }}</span>
+                    <span class="font-mono text-xs text-red-400">{{ pkg.vulnerable_versions }}</span>
+                </div>
+
+                <!-- Match outcomes -->
+                <div class="space-y-3">
+                    <!-- Vulnerable repos -->
+                    {% if pkg.vulnerable_repos %}
+                    <div class="bg-red-500/5 border border-red-500/10 rounded-lg p-3">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-red-400 text-sm">&#128680;</span>
+                            <span class="text-xs font-semibold text-red-400 uppercase tracking-wider">Vulnerable ({{ pkg.vulnerable_repos | length }})</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                            {% for repo in pkg.vulnerable_repos %}
+                            <div class="flex items-center gap-2 px-3 py-2 bg-red-500/5 rounded border border-red-500/10">
+                                <div class="flex-1">
+                                    <p class="text-sm text-red-300 font-medium">{{ repo.repo }}</p>
+                                    <p class="text-xs text-red-400/70 font-mono">{{ repo.version_in_use }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Safe repos -->
+                    {% if pkg.safe_repos_count and pkg.safe_repos_count > 0 %}
+                    <div class="bg-green-500/5 border border-green-500/10 rounded-lg p-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-green-400 text-sm">&#9989;</span>
+                            <span class="text-xs font-semibold text-green-400 uppercase tracking-wider">Safe</span>
+                            <span class="text-xs text-green-400/70">{{ pkg.safe_repos_count }} repos on non-vulnerable versions</span>
+                        </div>
+                        {% if pkg.safe_repos_sample %}
+                        <div class="flex flex-wrap gap-1.5 mt-2">
+                            {% for repo in pkg.safe_repos_sample %}
+                            <span class="px-2 py-0.5 bg-green-500/5 border border-green-500/10 rounded text-xs text-green-300/70">
+                                {{ repo.repo }} @ {{ repo.version_in_use }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Not found -->
+                    {% if pkg.status == 'not_found' %}
+                    <div class="bg-gray-700/20 border border-gray-700/30 rounded-lg p-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-400 text-sm">&#8505;</span>
+                            <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Not Found</span>
+                            <span class="text-xs text-gray-500">Package not present in any scanned SBOM</span>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Validator status -->
+                    {% if pkg.validator_status %}
+                    <div class="bg-gray-700/10 border border-gray-700/20 rounded-lg p-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Validator</span>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-medium
+                                {% if pkg.validator_status == 'reachable' %}bg-red-500/10 text-red-400
+                                {% else %}bg-green-500/10 text-green-400{% endif %}">
+                                {{ pkg.validator_status }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not incidents %}
+<div class="bg-gray-800 rounded-xl border border-gray-700/50 px-5 py-12 text-center text-gray-500 text-sm">
+    No match results yet. Run the full pipeline or demo to generate matches.
+</div>
+{% endif %}
+{% endblock %}

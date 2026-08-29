@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}News Feed{% endblock %}
+{% block page_title %}News Feed{% endblock %}
+
+{% block content %}
+<!-- Header actions -->
+<div class="flex items-center justify-between mb-6">
+    <!-- Tab filters -->
+    <div class="flex items-center gap-2">
+        <button class="news-tab active px-3 py-1.5 rounded-full text-xs font-medium transition-colors" data-filter="all">
+            All
+        </button>
+        <button class="news-tab px-3 py-1.5 rounded-full text-xs font-medium transition-colors" data-filter="supply_chain_vuln">
+            Supply Chain Vulns
+        </button>
+        <button class="news-tab px-3 py-1.5 rounded-full text-xs font-medium transition-colors" data-filter="threat_intel">
+            Threat Intel
+        </button>
+        <button class="news-tab px-3 py-1.5 rounded-full text-xs font-medium transition-colors" data-filter="general_info">
+            General Info
+        </button>
+    </div>
+    <button id="run-news-btn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors">
+        Run News Cycle
+    </button>
+</div>
+
+<!-- Article cards grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5" id="news-grid">
+    {% for article in articles %}
+    <div class="news-card bg-gray-800 rounded-xl border border-gray-700/50 overflow-hidden hover:border-gray-600/50 transition-colors"
+         data-classification="{{ article.classification }}">
+        <div class="p-5">
+            <!-- Classification badge -->
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs text-gray-500">{{ article.source }}</span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider
+                    {% if article.classification == 'supply_chain_vuln' %}bg-red-500/10 text-red-400 border border-red-500/20
+                    {% elif article.classification == 'threat_intel' %}bg-orange-500/10 text-orange-400 border border-orange-500/20
+                    {% else %}bg-gray-600/20 text-gray-400 border border-gray-600/30{% endif %}">
+                    {{ article.classification | replace('_', ' ') }}
+                </span>
+            </div>
+
+            <!-- Title -->
+            <h3 class="text-base font-semibold text-white mb-2 line-clamp-2 leading-tight">
+                <a href="/news/{{ loop.index0 }}" class="hover:text-indigo-300 transition-colors">{{ article.title }}</a>
+            </h3>
+
+            <!-- Summary -->
+            <p class="text-sm text-gray-400 line-clamp-2 mb-3">{{ article.summary }}</p>
+
+            <!-- Impact score bar -->
+            {% if article.impact_score %}
+            <div class="mb-3">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-[10px] text-gray-500 uppercase tracking-wider">Impact Score</span>
+                    <span class="text-xs font-bold
+                        {% if article.impact_score >= 8 %}text-red-400
+                        {% elif article.impact_score >= 5 %}text-yellow-400
+                        {% else %}text-blue-400{% endif %}">
+                        {{ article.impact_score }}/10
+                    </span>
+                </div>
+                <div class="w-full bg-gray-700/50 rounded-full h-1.5">
+                    <div class="h-1.5 rounded-full transition-all
+                        {% if article.impact_score >= 8 %}bg-red-500
+                        {% elif article.impact_score >= 5 %}bg-yellow-500
+                        {% else %}bg-blue-500{% endif %}"
+                        style="width: {{ article.impact_score * 10 }}%">
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Affected packages chips -->
+            {% if article.affected_packages %}
+            <div class="flex flex-wrap gap-1.5 mb-3">
+                {% for pkg in article.affected_packages %}
+                <span class="px-2 py-0.5 bg-gray-900/50 border border-gray-700/50 rounded text-xs text-gray-300 font-mono">
+                    {{ pkg.name }}@{{ pkg.vulnerable_versions }}
+                </span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Footer -->
+            <div class="flex items-center justify-between pt-3 border-t border-gray-700/30">
+                <span class="text-xs text-gray-500">{{ article.published }}</span>
+                <a href="/news/{{ loop.index0 }}" class="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
+                    View Details &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not articles %}
+<div class="bg-gray-800 rounded-xl border border-gray-700/50 px-5 py-12 text-center text-gray-500 text-sm">
+    No articles yet. Run a news cycle or start the demo to populate.
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Tab filtering
+    document.querySelectorAll('.news-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.news-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const filter = tab.dataset.filter;
+            document.querySelectorAll('.news-card').forEach(card => {
+                if (filter === 'all' || card.dataset.classification === filter) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    document.getElementById('run-news-btn').addEventListener('click', () => {
+        window.location.href = '/demo';
+    });
+</script>
+{% endblock %}

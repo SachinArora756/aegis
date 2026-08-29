@@ -300,5 +300,36 @@ def check():
         click.secho("\nSome dependencies are missing — see above.", fg="yellow")
 
 
+# ---------------------------------------------------------------------------
+# Web server
+# ---------------------------------------------------------------------------
+
+@main.command()
+@click.option("--port", default=8000, type=int, help="Port to listen on")
+@click.option("--host", default="127.0.0.1", help="Host to bind to")
+@click.option("--demo", is_flag=True, help="Start in demo mode (no DB/API keys required)")
+@click.option("--reload", "do_reload", is_flag=True, help="Auto-reload on code changes")
+def web(port, host, demo, do_reload):
+    """Start the Aegis web dashboard."""
+    import uvicorn
+
+    mode = "DEMO" if demo else "LIVE"
+    click.echo(f"Starting Aegis web dashboard ({mode} mode) on http://{host}:{port}")
+
+    if demo:
+        click.echo("  Demo mode: all data is simulated, no external services needed.")
+    click.echo("  Press Ctrl+C to stop.\n")
+
+    os.environ["AEGIS_WEB_DEMO"] = "1" if demo else "0"
+
+    uvicorn.run(
+        "aegis.web.app:create_app",
+        factory=True,
+        host=host,
+        port=port,
+        reload=do_reload,
+    )
+
+
 if __name__ == "__main__":
     main()

@@ -1,0 +1,16 @@
+<div class="bg-gray-800 rounded-xl border border-gray-700/50 overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-2 border-b border-gray-700/50 bg-gray-800">
+        <div class="flex items-center gap-2">
+            <div class="flex gap-1.5">
+                <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+            </div>
+            <span class="text-xs text-gray-500 ml-2">{{ terminal_title or 'aegis' }}</span>
+        </div>
+    </div>
+    <div id="{{ terminal_id or 'terminal' }}" class="bg-terminal p-4 font-mono text-sm overflow-y-auto" style="max-height: 600px; min-height: 200px;">
+        <div id="{{ terminal_id or 'terminal' }}-output"></div>
+        <span id="{{ terminal_id or 'terminal' }}-cursor" class="animate-pulse text-green-400 hidden">&#9608;</span>
+    </div>
+</div>

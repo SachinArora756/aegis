@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Live Demo{% endblock %}
+{% block page_title %}Live Demo{% endblock %}
+
+{% block content %}
+<!-- Pipeline diagram -->
+<div class="bg-gray-800 rounded-xl border border-gray-700/50 p-6 mb-6">
+    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Pipeline Stages</h2>
+    <div class="flex items-center justify-center gap-3 flex-wrap">
+        <!-- SBOM stage -->
+        <div id="stage-sbom" class="pipeline-stage flex items-center gap-3 px-4 py-3 bg-gray-900/50 border border-gray-700/30 rounded-lg min-w-[140px] transition-all">
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                <span class="text-blue-400 text-sm">&#9776;</span>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-300">SBOM Scan</p>
+                <p class="text-[10px] text-gray-500 stage-status">Idle</p>
+            </div>
+        </div>
+
+        <span class="text-gray-600 text-lg hidden sm:inline">&rarr;</span>
+
+        <!-- News stage -->
+        <div id="stage-news" class="pipeline-stage flex items-center gap-3 px-4 py-3 bg-gray-900/50 border border-gray-700/30 rounded-lg min-w-[140px] transition-all">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
+                <span class="text-indigo-400 text-sm">&#9993;</span>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-300">News Ingest</p>
+                <p class="text-[10px] text-gray-500 stage-status">Idle</p>
+            </div>
+        </div>
+
+        <span class="text-gray-600 text-lg hidden sm:inline">&rarr;</span>
+
+        <!-- Match stage -->
+        <div id="stage-match" class="pipeline-stage flex items-center gap-3 px-4 py-3 bg-gray-900/50 border border-gray-700/30 rounded-lg min-w-[140px] transition-all">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                <span class="text-emerald-400 text-sm">&#10003;</span>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-300">Match Engine</p>
+                <p class="text-[10px] text-gray-500 stage-status">Idle</p>
+            </div>
+        </div>
+
+        <span class="text-gray-600 text-lg hidden sm:inline">&rarr;</span>
+
+        <!-- Validator stage -->
+        <div id="stage-validator" class="pipeline-stage flex items-center gap-3 px-4 py-3 bg-gray-900/50 border border-gray-700/30 rounded-lg min-w-[140px] transition-all">
+            <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                <span class="text-amber-400 text-sm">&#9889;</span>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-300">Validator</p>
+                <p class="text-[10px] text-gray-500 stage-status">Idle</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Controls -->
+<div class="flex flex-wrap items-center gap-3 mb-6">
+    <button id="btn-full" class="demo-btn px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition-colors" data-section="full">
+        Run Full Demo
+    </button>
+    <button id="btn-sbom" class="demo-btn px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors" data-section="sbom">
+        SBOM Only
+    </button>
+    <button id="btn-news" class="demo-btn px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-lg transition-colors" data-section="news">
+        News Only
+    </button>
+    <button id="btn-match" class="demo-btn px-4 py-2.5 bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium rounded-lg transition-colors" data-section="match">
+        Match Only
+    </button>
+
+    <div class="flex-1"></div>
+
+    <!-- Status indicator -->
+    <div class="flex items-center gap-2">
+        <span id="demo-status-dot" class="w-2 h-2 rounded-full bg-gray-600"></span>
+        <span id="demo-status-text" class="text-xs text-gray-500">Idle</span>
+    </div>
+
+    <button id="btn-clear" class="px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs rounded-lg transition-colors">
+        Clear
+    </button>
+</div>
+
+<!-- Fast mode toggle -->
+<div class="flex items-center gap-2 mb-4">
+    <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="fast-mode" class="sr-only peer" checked>
+        <div class="w-9 h-5 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-gray-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
+    </label>
+    <span class="text-xs text-gray-400">Fast mode (skip delays)</span>
+</div>
+
+<!-- Live terminal -->
+<div class="bg-gray-800 rounded-xl border border-gray-700/50 overflow-hidden">
+    <div class="flex items-center justify-between px-4 py-2 border-b border-gray-700/50 bg-gray-800">
+        <div class="flex items-center gap-2">
+            <div class="flex gap-1.5">
+                <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+            </div>
+            <span class="text-xs text-gray-500 ml-2">aegis demo</span>
+        </div>
+        <span class="text-[10px] text-gray-600 font-mono" id="terminal-line-count">0 lines</span>
+    </div>
+    <div id="terminal" class="bg-terminal p-4 font-mono text-sm overflow-y-auto" style="max-height: 600px; min-height: 300px;">
+        <div id="terminal-output">
+            <div class="text-gray-600 text-xs">
+                Aegis Supply Chain Shield — Demo Terminal<br>
+                Ready. Click a button above to start.
+            </div>
+        </div>
+        <span id="terminal-cursor" class="text-green-400 hidden animate-pulse">&#9608;</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/terminal.js') }}"></script>
+<script src="{{ url_for('static', path='js/demo.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Aegis{% endblock %} — Aegis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        severity: {
+                            critical: '#ef4444',
+                            high: '#f97316',
+                            medium: '#eab308',
+                            low: '#3b82f6',
+                            info: '#6366f1',
+                            safe: '#22c55e',
+                        },
+                        terminal: '#0d1117',
+                        sidebar: '#111827',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/custom.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex">
+
+    <!-- Sidebar -->
+    <aside class="fixed top-0 left-0 h-full w-64 bg-gray-800 border-r border-gray-700 flex flex-col z-30">
+        <!-- Logo -->
+        <div class="px-5 py-5 border-b border-gray-700">
+            <a href="/" class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-lg">A</div>
+                <div>
+                    <span class="text-lg font-bold text-white tracking-wide">AEGIS</span>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-none mt-0.5">Supply Chain Shield</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+            <a href="/" class="nav-link {% if active_page == 'dashboard' %}active{% endif %}">
+                <span class="nav-icon">&#9632;</span>
+                <span>Dashboard</span>
+            </a>
+            <a href="/sbom" class="nav-link {% if active_page == 'sbom' %}active{% endif %}">
+                <span class="nav-icon">&#9776;</span>
+                <span>SBOM Inventory</span>
+            </a>
+            <a href="/news" class="nav-link {% if active_page == 'news' %}active{% endif %}">
+                <span class="nav-icon">&#9993;</span>
+                <span>News Feed</span>
+            </a>
+            <a href="/match" class="nav-link {% if active_page == 'match' %}active{% endif %}">
+                <span class="nav-icon">&#10003;</span>
+                <span>Match Results</span>
+            </a>
+
+            <div class="pt-4 pb-2">
+                <p class="px-3 text-[10px] uppercase tracking-widest text-gray-500 font-semibold">Tools</p>
+            </div>
+            <a href="/demo" class="nav-link {% if active_page == 'demo' %}active{% endif %}">
+                <span class="nav-icon">&#9654;</span>
+                <span>Live Demo</span>
+            </a>
+        </nav>
+
+        <!-- Pipeline status -->
+        <div class="px-4 py-3 border-t border-gray-700">
+            <div class="flex items-center gap-2 text-xs text-gray-400">
+                <span class="relative flex h-2.5 w-2.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
+                </span>
+                <span>Pipeline Healthy</span>
+            </div>
+            {% if demo_mode %}
+            <div class="mt-2 px-2 py-1 bg-amber-900/30 border border-amber-700/50 rounded text-[10px] text-amber-400 text-center uppercase tracking-wider font-semibold">
+                Demo Mode
+            </div>
+            {% endif %}
+        </div>
+    </aside>
+
+    <!-- Main content area -->
+    <main class="ml-64 flex-1 min-h-screen">
+        <!-- Top header -->
+        <header class="sticky top-0 z-20 bg-gray-900/80 backdrop-blur-sm border-b border-gray-700/50 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-xl font-semibold text-white">{% block page_title %}Dashboard{% endblock %}</h1>
+                <div class="flex items-center gap-3">
+                    {% if demo_mode %}
+                    <span class="px-2.5 py-1 bg-amber-500/10 text-amber-400 text-xs font-medium rounded-full border border-amber-500/20">
+                        DEMO MODE
+                    </span>
+                    {% endif %}
+                    <span class="text-xs text-gray-500" id="clock"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page content -->
+        <div class="p-6">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', path='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

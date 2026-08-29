@@ -46,7 +46,7 @@ class LLMClient:
             if not key:
                 raise ValueError("GEMINI_API_KEY is required")
             self._gemini_client = genai.Client(api_key=key)
-            self._model_name = model or "gemini-2.0-flash"
+            self._model_name = model or "gemini-3.6-flash"
 
         elif self._provider == "anthropic":
             if not HAS_ANTHROPIC:

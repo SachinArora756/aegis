@@ -59,7 +59,7 @@ class Settings(BaseSettings):
     rag_embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     rag_embedding_dimensions: int = 384
     rag_top_k: int = 5
-    rag_chat_model: str = "gemini-2.0-flash"
+    rag_chat_model: str = "gemini-3.6-flash"
 
     # Logging
     log_level: str = "INFO"

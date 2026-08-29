@@ -327,12 +327,6 @@ async def _stream_full(ws: WebSocket, fast: bool):
     await _send(ws, "info", "  RAG: chatbot answered with 4 sources, remediation plan generated")
     await _send(ws, "info", "  Action: Slack alerts sent, validators confirmed blast radius")
 
-    await asyncio.sleep(delay)
-    await _send_phase(ws, "Phase 5: Ask Aegis (RAG)", 5)
-    await _send_highlight(ws, "chat", "active")
-    await _stream_chat(ws, fast)
-    await _send_highlight(ws, "chat", "done")
-
 
 async def _stream_chat(ws: WebSocket, fast: bool):
     delay = 0.1 if fast else 0.5

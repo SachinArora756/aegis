@@ -1,13 +1,16 @@
 """Embedding backends for the Aegis RAG system.
 
-Production: VoyageEmbedder (voyage-3-lite, 1024-dim).
-Demo: MockEmbedder (zero-vectors, no external calls).
+Production: HuggingFaceEmbedder (free Inference API, 384-dim).
+Legacy: VoyageEmbedder (voyage-3-lite, 1024-dim, paid).
+Demo: MockEmbedder (deterministic vectors, no external calls).
 """
 
 import logging
 import math
 import os
 from abc import ABC, abstractmethod
+
+import httpx
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +31,57 @@ class EmbedderBase(ABC):
         return [await self.embed(t) for t in texts]
 
 
+class HuggingFaceEmbedder(EmbedderBase):
+    """Free embeddings via Hugging Face Inference API."""
+
+    def __init__(
+        self,
+        api_key: str | None = None,
+        model: str = "sentence-transformers/all-MiniLM-L6-v2",
+        dimensions: int = 384,
+    ) -> None:
+        key = api_key or os.environ.get("HF_API_KEY", "")
+        if not key:
+            raise ValueError("HF_API_KEY is required for HuggingFaceEmbedder")
+        self._api_key = key
+        self._model = model
+        self._dimensions = dimensions
+        self._url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{model}"
+
+    async def embed(self, text: str) -> list[float]:
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.post(
+                self._url,
+                headers={"Authorization": f"Bearer {self._api_key}"},
+                json={"inputs": text, "options": {"wait_for_model": True}},
+            )
+            resp.raise_for_status()
+            embedding = resp.json()
+            if isinstance(embedding[0], list):
+                embedding = embedding[0]
+            return embedding
+
+    async def embed_batch(self, texts: list[str]) -> list[list[float]]:
+        if not texts:
+            return []
+        results: list[list[float]] = []
+        batch_size = 32
+        async with httpx.AsyncClient(timeout=60) as client:
+            for i in range(0, len(texts), batch_size):
+                batch = texts[i : i + batch_size]
+                resp = await client.post(
+                    self._url,
+                    headers={"Authorization": f"Bearer {self._api_key}"},
+                    json={"inputs": batch, "options": {"wait_for_model": True}},
+                )
+                resp.raise_for_status()
+                embeddings = resp.json()
+                results.extend(embeddings)
+        return results
+
+
 class VoyageEmbedder(EmbedderBase):
+    """Legacy paid embeddings via Voyage AI."""
 
     def __init__(
         self,
@@ -65,7 +118,7 @@ class VoyageEmbedder(EmbedderBase):
 
 class MockEmbedder(EmbedderBase):
 
-    def __init__(self, dimensions: int = 1024) -> None:
+    def __init__(self, dimensions: int = 384) -> None:
         self._dimensions = dimensions
 
     async def embed(self, text: str) -> list[float]:

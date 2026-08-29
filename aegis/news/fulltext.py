@@ -125,7 +125,7 @@ async def fetch_via_jina(url: str) -> str | None:
 # Version recovery pipeline
 # ---------------------------------------------------------------------------
 
-async def recover_versions(article: dict, anthropic_client: Any) -> dict | None:
+async def recover_versions(article: dict, llm_client: Any) -> dict | None:
     """Attempt to recover specific version numbers for packages tagged "all".
 
     1. Fetch full article text (plain HTTP → Jina fallback).
@@ -148,7 +148,7 @@ async def recover_versions(article: dict, anthropic_client: Any) -> dict | None:
 
     recovered = await enrich_article(
         article,
-        anthropic_client,
+        llm_client,
         full_text=full_text,
         recovery=True,
     )

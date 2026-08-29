@@ -47,12 +47,19 @@ class Settings(BaseSettings):
     ecs_subnets: str = ""
     ecs_security_groups: str = ""
 
+    # LLM Provider
+    llm_provider: str = "gemini"
+    gemini_api_key: str = ""
+
+    # Hugging Face (free embeddings)
+    hf_api_key: str = ""
+
     # RAG
     voyage_api_key: str = ""
-    rag_embedding_model: str = "voyage-3-lite"
-    rag_embedding_dimensions: int = 1024
+    rag_embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
+    rag_embedding_dimensions: int = 384
     rag_top_k: int = 5
-    rag_chat_model: str = "claude-sonnet-4-20250514"
+    rag_chat_model: str = "gemini-2.0-flash"
 
     # Logging
     log_level: str = "INFO"

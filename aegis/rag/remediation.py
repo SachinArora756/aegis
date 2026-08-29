@@ -57,10 +57,9 @@ class RemediationResult:
 
 class RemediationEngine:
 
-    def __init__(self, retriever, anthropic_client, model: str = "claude-sonnet-4-20250514"):
+    def __init__(self, retriever, llm_client):
         self._retriever = retriever
-        self._client = anthropic_client
-        self._model = model
+        self._client = llm_client
 
     async def recommend(
         self,
@@ -107,13 +106,13 @@ class RemediationEngine:
         )
 
         try:
-            resp = await self._client.messages.create(
-                model=self._model,
-                max_tokens=2048,
+            raw = await self._client.generate(
                 system=_REMEDIATION_SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": user_msg}],
+                max_tokens=2048,
             )
-            raw = resp.content[0].text if resp.content else "{}"
+            if not raw:
+                raw = "{}"
             raw = raw.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
             data = json.loads(raw)
         except Exception:

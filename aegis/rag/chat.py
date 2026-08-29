@@ -38,10 +38,9 @@ class ChatResponse:
 
 class ChatEngine:
 
-    def __init__(self, retriever, anthropic_client, model: str = "claude-sonnet-4-20250514"):
+    def __init__(self, retriever, llm_client):
         self._retriever = retriever
-        self._client = anthropic_client
-        self._model = model
+        self._client = llm_client
 
     async def answer(
         self,
@@ -75,14 +74,14 @@ class ChatEngine:
             messages.extend(history)
         messages.append({"role": "user", "content": question})
 
-        resp = await self._client.messages.create(
-            model=self._model,
-            max_tokens=2048,
+        answer_text = await self._client.generate(
             system=system,
             messages=messages,
+            max_tokens=2048,
         )
 
-        answer_text = resp.content[0].text if resp.content else "I was unable to generate an answer."
+        if not answer_text:
+            answer_text = "I was unable to generate an answer."
 
         return ChatResponse(answer=answer_text, sources=sources, context_used=context_used)
 
@@ -114,14 +113,12 @@ class ChatEngine:
 
         yield {"type": "sources", "sources": sources}
 
-        async with self._client.messages.stream(
-            model=self._model,
-            max_tokens=2048,
+        async for chunk in self._client.stream(
             system=system,
             messages=messages,
-        ) as stream:
-            async for text in stream.text_stream:
-                yield {"type": "token", "text": text}
+            max_tokens=2048,
+        ):
+            yield {"type": "token", "text": chunk}
 
         yield {"type": "done"}
 

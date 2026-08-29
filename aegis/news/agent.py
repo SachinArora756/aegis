@@ -11,11 +11,11 @@ import logging
 from datetime import datetime, timezone
 from typing import Any
 
-import anthropic
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from aegis.config import settings
+from aegis.llm import LLMClient
 from aegis.news.dedup import deduplicate
 from aegis.news.enricher import enrich_article, needs_version_recovery
 from aegis.news.feeds import ALL_FEEDS
@@ -34,14 +34,12 @@ class NewsIngestionAgent:
     def __init__(self) -> None:
         self._fetcher = FeedFetcher()
         self._state_mgr = StateManager()
-        self._anthropic: anthropic.AsyncAnthropic | None = None
+        self._llm_client: LLMClient | None = None
 
-    def _get_anthropic(self) -> anthropic.AsyncAnthropic:
-        if self._anthropic is None:
-            self._anthropic = anthropic.AsyncAnthropic(
-                api_key=settings.anthropic_api_key,
-            )
-        return self._anthropic
+    def _get_llm_client(self) -> LLMClient:
+        if self._llm_client is None:
+            self._llm_client = LLMClient()
+        return self._llm_client
 
     # ------------------------------------------------------------------
     # DB helpers
@@ -96,7 +94,7 @@ class NewsIngestionAgent:
 
         Returns a summary dict with counts at each pipeline stage.
         """
-        client = self._get_anthropic()
+        client = self._get_llm_client()
         summary = {
             "fetched": 0,
             "after_filter": 0,

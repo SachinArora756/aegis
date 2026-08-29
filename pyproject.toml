@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Supply-chain risk tracker — SBOM/SCA pipeline + news ingestion agent + match engine"
 requires-python = ">=3.11"
 dependencies = [
-    "anthropic>=0.39.0",
+    "google-genai>=1.0.0",
     "sqlalchemy[asyncio]>=2.0.30",
     "asyncpg>=0.30.0",
     "httpx>=0.27.0",
@@ -29,8 +29,13 @@ dependencies = [
 
 [project.optional-dependencies]
 rag = [
-    "voyageai>=0.3.0",
     "pgvector>=0.3.0",
+]
+anthropic = [
+    "anthropic>=0.39.0",
+]
+voyage = [
+    "voyageai>=0.3.0",
 ]
 dev = [
     "pytest>=8.3.0",

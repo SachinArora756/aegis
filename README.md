@@ -93,18 +93,17 @@ cp .env.example .env
 
 Required environment variables:
 
-| Variable | Purpose |
-|---|---|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `ANTHROPIC_API_KEY` | Claude API for news enrichment + chat |
-| `SLACK_BOT_TOKEN` | Slack alerts |
-| `SLACK_CHANNEL_ID` | Target Slack channel |
+| Variable | Purpose | Cost |
+|---|---|---|
+| `DATABASE_URL` | PostgreSQL connection string | Free (AWS RDS free tier) |
+| `GEMINI_API_KEY` | Google Gemini for LLM enrichment + chat | Free (15 RPM) |
+| `HF_API_KEY` | Hugging Face embeddings for RAG | Free |
+| `SLACK_BOT_TOKEN` | Slack alerts | Free |
+| `SLACK_CHANNEL_ID` | Target Slack channel | Free |
 
-Optional for RAG:
-
-| Variable | Purpose |
-|---|---|
-| `VOYAGE_API_KEY` | Voyage AI embeddings (production RAG) |
+Get your free API keys:
+- **Gemini**: https://aistudio.google.com/apikey
+- **Hugging Face**: https://huggingface.co/settings/tokens
 
 ### 3. Initialize Database
 
@@ -196,7 +195,7 @@ aegis/
 
 - **Backend**: Python 3.11+, FastAPI, SQLAlchemy (async), Click
 - **Database**: PostgreSQL 16 + pgvector
-- **AI/ML**: Claude (enrichment + chat), Voyage AI (embeddings)
+- **AI/ML**: Google Gemini (enrichment + chat, free tier), Hugging Face (embeddings, free tier)
 - **Frontend**: Jinja2, Tailwind CSS, vanilla JS, WebSocket streaming
 - **Scanning**: Cartograph (SBOM), Auditor (licenses), Sentinel (vulnerabilities)
 - **Alerts**: Slack Bot API

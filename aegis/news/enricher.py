@@ -206,11 +206,11 @@ def needs_version_recovery(result: dict) -> bool:
 
 async def enrich_article(
     article: dict,
-    anthropic_client: Any,
+    llm_client: Any,
     full_text: str | None = None,
     recovery: bool = False,
 ) -> dict:
-    """Send an article to Claude for classification and structured extraction.
+    """Send an article to the LLM for classification and structured extraction.
 
     Returns the article dict augmented with classification, affected_packages,
     impact_score, and a refined summary.
@@ -218,13 +218,12 @@ async def enrich_article(
     user_msg = _build_enrichment_prompt(article, full_text=full_text, recovery=recovery)
 
     try:
-        resp = await anthropic_client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=2048,
+        raw = await llm_client.generate(
             system=_ENRICHMENT_SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_msg}],
+            max_tokens=2048,
         )
-        raw = resp.content[0].text.strip()
+        raw = raw.strip()
         if raw.startswith("```"):
             raw = re.sub(r"^```\w*\n?", "", raw)
             raw = re.sub(r"\n?```$", "", raw)

@@ -140,9 +140,9 @@ index it duplicates. Only JSON, no markdown fences."""
 async def llm_semantic_dedup(
     candidates: list[dict],
     existing_titles: list[str],
-    anthropic_client: Any,
+    llm_client: Any,
 ) -> list[dict]:
-    """Use Claude to catch semantic duplicates and score impact.
+    """Use LLM to catch semantic duplicates and score impact.
 
     Returns only non-duplicate candidates whose impact_score >= MIN_IMPACT_SCORE.
     """
@@ -161,13 +161,12 @@ async def llm_semantic_dedup(
     )
 
     try:
-        resp = await anthropic_client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=2048,
+        raw = await llm_client.generate(
             system=_DEDUP_SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_msg}],
+            max_tokens=2048,
         )
-        raw = resp.content[0].text.strip()
+        raw = raw.strip()
         if raw.startswith("```"):
             raw = re.sub(r"^```\w*\n?", "", raw)
             raw = re.sub(r"\n?```$", "", raw)
@@ -217,7 +216,7 @@ async def llm_semantic_dedup(
 async def deduplicate(
     articles: list[dict],
     session: AsyncSession,
-    anthropic_client: Any,
+    llm_client: Any,
 ) -> list[dict]:
     """Run all three dedup phases in order, cheapest first."""
     if not articles:
@@ -268,7 +267,7 @@ async def deduplicate(
     logger.info("Dedup phase 2: %d → %d", len(phase1), len(phase2))
 
     # Phase 3 — LLM semantic dedup + scoring
-    phase3 = await llm_semantic_dedup(phase2, existing_titles, anthropic_client)
+    phase3 = await llm_semantic_dedup(phase2, existing_titles, llm_client)
     logger.info("Dedup phase 3: %d → %d", len(phase2), len(phase3))
 
     return phase3

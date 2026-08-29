@@ -256,6 +256,35 @@ def demo_match(fast):
 
 
 # ---------------------------------------------------------------------------
+# Web dashboard
+# ---------------------------------------------------------------------------
+
+@main.command("web")
+@click.option("--port", default=8000, type=int, help="Port to listen on")
+@click.option("--host", default="127.0.0.1", help="Bind address")
+@click.option("--demo", is_flag=True, help="Run in demo mode (mock data, no DB/API keys needed)")
+@click.option("--reload", "do_reload", is_flag=True, help="Enable auto-reload for development")
+def web(port, host, demo, do_reload):
+    """Start the Aegis web dashboard."""
+    import uvicorn
+
+    if demo:
+        os.environ["AEGIS_WEB_DEMO"] = "1"
+
+    click.echo(f"Starting Aegis web dashboard on http://{host}:{port}")
+    if demo:
+        click.secho("  Demo mode: all data is simulated (no DB or API keys required)", fg="cyan")
+    click.echo("  Press Ctrl+C to stop.\n")
+    uvicorn.run(
+        "aegis.web.app:create_app",
+        factory=True,
+        host=host,
+        port=port,
+        reload=do_reload,
+    )
+
+
+# ---------------------------------------------------------------------------
 # Health check
 # ---------------------------------------------------------------------------
 

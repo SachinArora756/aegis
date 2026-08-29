@@ -324,12 +324,12 @@ def rag_index(demo):
         count = _run(index_remediation_guides(embedder, store))
         click.secho(f"Indexed {count} remediation guides.", fg="green")
     else:
-        click.echo("Indexing into production vector store (requires VOYAGE_API_KEY + Postgres)...")
-        from aegis.rag.embedder import VoyageEmbedder
+        click.echo("Indexing into production vector store (requires GEMINI_API_KEY + Postgres)...")
+        from aegis.rag.embedder import GeminiEmbedder
         from aegis.rag.ingest import index_remediation_guides
         from aegis.rag.store import PgVectorStore
 
-        embedder = VoyageEmbedder()
+        embedder = GeminiEmbedder()
         store = PgVectorStore()
         count = _run(index_remediation_guides(embedder, store))
         click.secho(f"Indexed {count} remediation guides into pgvector.", fg="green")

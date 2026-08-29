@@ -4,6 +4,7 @@ Production: PgVectorStore (pgvector extension on Postgres).
 Demo: InMemoryVectorStore (dict-based, pure-Python cosine similarity).
 """
 
+import json
 import logging
 import math
 from abc import ABC, abstractmethod
@@ -147,9 +148,9 @@ class PgVectorStore(VectorStoreBase):
             await session.execute(
                 sa_text("""
                     INSERT INTO aegis_embedding
-                        (source_type, source_id, content_text, embedding, metadata)
+                        (source_type, source_id, content_text, embedding, metadata, created_at)
                     VALUES
-                        (:source_type, :source_id, :content_text, :embedding, :metadata)
+                        (:source_type, :source_id, :content_text, :embedding, :metadata, NOW())
                     ON CONFLICT (source_type, source_id)
                     DO UPDATE SET
                         content_text = EXCLUDED.content_text,
@@ -161,7 +162,7 @@ class PgVectorStore(VectorStoreBase):
                     "source_id": source_id,
                     "content_text": text,
                     "embedding": str(embedding),
-                    "metadata": metadata or {},
+                    "metadata": json.dumps(metadata or {}),
                 },
             )
             await session.commit()

@@ -14,10 +14,10 @@ async function loadStats() {
   try {
     const data = await fetchJSON('/api/stats');
     const map = {
-      'stat-repos': data.repos ?? 0,
-      'stat-components': data.components ?? 0,
-      'stat-vulns': data.vulnerabilities ?? 0,
-      'stat-articles': data.articles ?? 0,
+      'stat-repos': data.repos_scanned ?? 0,
+      'stat-components': data.total_components ?? 0,
+      'stat-vulns': data.active_vulns ?? 0,
+      'stat-articles': data.articles_today ?? 0,
     };
     for (const [id, val] of Object.entries(map)) {
       const el = document.getElementById(id);

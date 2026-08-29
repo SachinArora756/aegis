@@ -206,6 +206,59 @@ def init_db():
     click.secho("Database initialized successfully.", fg="green")
 
 
+# ---------------------------------------------------------------------------
+# Demo sub-group
+# ---------------------------------------------------------------------------
+
+@main.group()
+def demo():
+    """Run a demo of the full Aegis pipeline using mock data (no API keys needed)."""
+
+
+@demo.command("full")
+@click.option("--fast", is_flag=True, help="Skip simulated delays")
+def demo_full(fast):
+    """Run the complete end-to-end demo: SBOM → News → Match → Validator."""
+    from aegis.demo.runner import DemoRunner
+
+    runner = DemoRunner(fast=fast)
+    runner.run_full_demo()
+
+
+@demo.command("sbom")
+@click.option("--fast", is_flag=True, help="Skip simulated delays")
+def demo_sbom(fast):
+    """Demo the SBOM/SCA pipeline (Cartograph + Auditor + Fuse + Sentinel + Licenser)."""
+    from aegis.demo.runner import DemoRunner
+
+    runner = DemoRunner(fast=fast)
+    runner.run_sbom_demo()
+
+
+@demo.command("news")
+@click.option("--fast", is_flag=True, help="Skip simulated delays")
+def demo_news(fast):
+    """Demo the News Ingestion Agent (fetch → filter → dedup → enrich)."""
+    from aegis.demo.runner import DemoRunner
+
+    runner = DemoRunner(fast=fast)
+    runner.run_news_demo()
+
+
+@demo.command("match")
+@click.option("--fast", is_flag=True, help="Skip simulated delays")
+def demo_match(fast):
+    """Demo the Match Engine + Validator (SBOM lookup → version check → alert)."""
+    from aegis.demo.runner import DemoRunner
+
+    runner = DemoRunner(fast=fast)
+    runner.run_match_demo()
+
+
+# ---------------------------------------------------------------------------
+# Health check
+# ---------------------------------------------------------------------------
+
 @main.command("check")
 def check():
     """Verify that external dependencies (DB, Slack, tools) are reachable."""

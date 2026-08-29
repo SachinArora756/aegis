@@ -9,7 +9,9 @@ from datetime import datetime, timedelta, timezone
 import feedparser
 import httpx
 
-from aegis.config import settings
+from aegis.config import get_settings
+
+settings = get_settings()
 from aegis.news.feeds import ALL_FEEDS, API_SOURCES, Feed
 
 logger = logging.getLogger(__name__)

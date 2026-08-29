@@ -11,7 +11,9 @@ from typing import Any
 
 import httpx
 
-from aegis.config import settings
+from aegis.config import get_settings
+
+settings = get_settings()
 from aegis.news.enricher import enrich_article, needs_version_recovery
 
 logger = logging.getLogger(__name__)

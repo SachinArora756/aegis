@@ -6,7 +6,9 @@ from typing import Any
 
 import httpx
 
-from aegis.config import settings
+from aegis.config import get_settings
+
+settings = get_settings()
 
 log = logging.getLogger(__name__)
 

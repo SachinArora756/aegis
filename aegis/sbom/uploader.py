@@ -8,7 +8,9 @@ import boto3
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from aegis.config import settings
+from aegis.config import get_settings
+
+settings = get_settings()
 from aegis.db.engine import get_session
 
 log = logging.getLogger(__name__)

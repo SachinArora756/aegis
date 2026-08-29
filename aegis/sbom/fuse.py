@@ -76,16 +76,17 @@ def fuse_sboms(cartograph_sbom: dict, auditor_sbom: dict) -> dict:
 
     if "metadata" not in merged:
         merged["metadata"] = {}
-    if "tools" not in merged["metadata"]:
-        merged["metadata"]["tools"] = []
 
-    merged["metadata"]["tools"].append(
-        {
-            "vendor": "aegis",
-            "name": "fuse",
-            "version": "0.1.0",
-        }
-    )
+    tools = merged["metadata"].get("tools")
+    aegis_tool = {"vendor": "aegis", "name": "fuse", "version": "0.1.0"}
+    if isinstance(tools, list):
+        tools.append(aegis_tool)
+    elif isinstance(tools, dict):
+        components_list = tools.get("components", [])
+        components_list.append(aegis_tool)
+        tools["components"] = components_list
+    else:
+        merged["metadata"]["tools"] = [aegis_tool]
     merged["metadata"]["timestamp"] = datetime.now(timezone.utc).isoformat()
 
     log.info(

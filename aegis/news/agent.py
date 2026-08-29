@@ -14,7 +14,9 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from aegis.config import settings
+from aegis.config import get_settings
+
+settings = get_settings()
 from aegis.llm import LLMClient
 from aegis.news.dedup import deduplicate
 from aegis.news.enricher import enrich_article, needs_version_recovery

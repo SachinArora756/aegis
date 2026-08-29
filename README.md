@@ -69,66 +69,141 @@ aegis demo chat
 aegis rag chat --demo
 ```
 
-## Production Setup
+## Production Setup (Step by Step)
 
 ### Prerequisites
 
-- Python 3.11+
-- PostgreSQL 16+ (with pgvector extension for RAG)
-- Docker (optional, for Postgres)
-- Cartograph, Auditor, and Sentinel CLI tools (bundled)
+- **Python 3.11+** — [python.org/downloads](https://www.python.org/downloads/)
+- **Docker Desktop** — [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/) (for PostgreSQL)
+- **Git** — [git-scm.com](https://git-scm.com/)
 
-### 1. Start PostgreSQL
+### Step 1: Clone and Install
+
+```bash
+git clone https://github.com/SachinArora756/aegis.git
+cd aegis
+pip install -e .
+```
+
+### Step 2: Install Scanning Tools
+
+Aegis uses three open-source scanning tools. Install them via [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/) (Windows), [brew](https://brew.sh/) (macOS/Linux), or download from GitHub:
+
+**Windows:**
+```bash
+winget install Anchore.Syft
+winget install Anchore.Grype
+winget install AquaSecurity.Trivy
+```
+
+**macOS / Linux:**
+```bash
+brew install syft grype trivy
+```
+
+Restart your terminal after installing so the tools are available on PATH.
+
+### Step 3: Get a Free Gemini API Key
+
+1. Go to [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+2. Sign in with your Google account
+3. Click "Create API Key" — it's free (15 requests/minute)
+4. Copy the key
+
+### Step 4: Configure Environment
+
+Create a `.env` file in the project root:
+
+```bash
+# .env
+GEMINI_API_KEY=your-gemini-api-key-here
+LLM_PROVIDER=gemini
+DATABASE_URL=postgresql+asyncpg://aegis:aegis_dev@localhost:5432/aegis_db
+```
+
+> **Note:** If port 5432 is already in use by another PostgreSQL instance, change the port in both `.env` and `docker-compose.yml` (e.g., use 5433).
+
+All environment variables:
+
+| Variable | Purpose | Required |
+|---|---|---|
+| `GEMINI_API_KEY` | Google Gemini for LLM + embeddings + chat | Yes (free) |
+| `LLM_PROVIDER` | LLM backend (`gemini` or `anthropic`) | No (defaults to `gemini`) |
+| `DATABASE_URL` | PostgreSQL connection string | Yes |
+| `SLACK_BOT_TOKEN` | Slack alerts | No (optional) |
+| `SLACK_CHANNEL_ID` | Target Slack channel | No (optional) |
+
+### Step 5: Start PostgreSQL
+
+Make sure Docker Desktop is running, then:
 
 ```bash
 docker compose up -d
 ```
 
-### 2. Configure Environment
+This starts a PostgreSQL 16 container with the pgvector extension pre-installed.
 
-```bash
-cp .env.example .env
-# Edit .env with your API keys
-```
-
-Required environment variables:
-
-| Variable | Purpose | Cost |
-|---|---|---|
-| `DATABASE_URL` | PostgreSQL connection string | Free (AWS RDS free tier) |
-| `GEMINI_API_KEY` | Google Gemini for LLM + embeddings + chat | Free (15 RPM) |
-| `SLACK_BOT_TOKEN` | Slack alerts | Free |
-| `SLACK_CHANNEL_ID` | Target Slack channel | Free |
-
-Get your free API key:
-- **Gemini**: https://aistudio.google.com/apikey
-
-### 3. Initialize Database
+### Step 6: Initialize the Database
 
 ```bash
 aegis init-db
 ```
 
-### 4. Run Pipelines
+This creates all the required tables (SBOM inventory, news articles, match results, embeddings, chat sessions, etc.).
+
+### Step 7: Run the Pipelines
 
 ```bash
-# Scan a repository
+# Scan a repository for dependencies and vulnerabilities
 aegis sbom scan ./path/to/repo
 
-# Run news ingestion
+# Scan the aegis project itself as a test
+aegis sbom scan .
+
+# Fetch and enrich security news from 22 RSS feeds
 aegis news run
 
-# Continuous monitoring
-aegis news watch --interval 30
-
-# Manual match
+# Cross-reference a news article against your SBOM inventory
 aegis match <news_id>
 
-# Web dashboard
-aegis web --port 3000
-
-# Index knowledge base
+# Index the knowledge base for RAG chatbot
 aegis rag index
+
+# Start an interactive chat session in terminal
+aegis rag chat
+```
+
+### Step 8: Launch the Web Dashboard
+
+```bash
+aegis web --port 3000
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser. The dashboard shows data from your database — SBOM inventory, news feed, match results, and the Ask Aegis chatbot.
+
+### Continuous Monitoring
+
+To keep the news feed updated automatically:
+
+```bash
+# Poll feeds every 30 minutes
+aegis news watch --interval 30
+```
+
+### All CLI Commands
+
+```
+aegis sbom scan <path>        Scan a repo (Cartograph + Auditor + Fuse + Sentinel + Licenser)
+aegis news run                Fetch + filter + enrich security articles
+aegis news watch --interval N Continuous news polling (minutes)
+aegis match <news_id>         Cross-reference news against SBOM inventory
+aegis rag index               Index knowledge base for RAG
+aegis rag chat                Interactive chat in terminal
+aegis web --port 3000         Start web dashboard
+aegis init-db                 Create database tables
+aegis demo full               Run full pipeline with mock data (no setup needed)
+aegis demo chat               Demo the RAG chatbot
+aegis web --demo --port 3000  Web dashboard with mock data (no setup needed)
 ```
 
 ## Project Structure

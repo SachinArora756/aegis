@@ -136,6 +136,237 @@
         <span id="terminal-cursor" class="text-green-400 hidden animate-pulse">&#9608;</span>
     </div>
 </div>
+<!-- Architecture Diagram -->
+<div class="bg-gray-800 rounded-xl border border-gray-700/50 overflow-hidden mt-6">
+    <div class="px-5 py-4 border-b border-gray-700/50 flex items-center justify-between">
+        <h2 class="font-semibold text-white">System Architecture</h2>
+        <span class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">End-to-End Pipeline</span>
+    </div>
+    <div class="p-5 overflow-x-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" style="min-width:780px;width:100%;height:auto;">
+            <defs>
+                <marker id="ah" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                    <path d="M0,0 L8,3 L0,6" fill="none" stroke="#4b5563" stroke-width="1.2"/>
+                </marker>
+                <marker id="ah-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                    <path d="M0,0 L8,3 L0,6" fill="none" stroke="#3b82f6" stroke-width="1.2"/>
+                </marker>
+                <marker id="ah-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                    <path d="M0,0 L8,3 L0,6" fill="none" stroke="#22c55e" stroke-width="1.2"/>
+                </marker>
+                <marker id="ah-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                    <path d="M0,0 L8,3 L0,6" fill="none" stroke="#ef4444" stroke-width="1.2"/>
+                </marker>
+                <marker id="ah-amber" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                    <path d="M0,0 L8,3 L0,6" fill="none" stroke="#f59e0b" stroke-width="1.2"/>
+                </marker>
+                <marker id="ah-purple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                    <path d="M0,0 L8,3 L0,6" fill="none" stroke="#a855f7" stroke-width="1.2"/>
+                </marker>
+                <filter id="glow-blue"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#3b82f6" flood-opacity="0.3"/></filter>
+                <filter id="glow-indigo"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#6366f1" flood-opacity="0.3"/></filter>
+                <filter id="glow-green"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#22c55e" flood-opacity="0.3"/></filter>
+                <filter id="glow-red"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#ef4444" flood-opacity="0.3"/></filter>
+                <filter id="glow-amber"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#f59e0b" flood-opacity="0.3"/></filter>
+                <filter id="glow-purple"><feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#a855f7" flood-opacity="0.3"/></filter>
+            </defs>
+
+            <!-- Background -->
+            <rect width="960" height="620" rx="8" fill="#0d1117"/>
+
+            <!-- ══════════ SIDE A: SBOM/SCA Pipeline (left column) ══════════ -->
+            <text x="160" y="32" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="700" letter-spacing="0.1em" font-family="system-ui,sans-serif">SIDE A &mdash; SBOM / SCA PIPELINE</text>
+            <line x1="42" y1="42" x2="278" y2="42" stroke="#3b82f6" stroke-width="1" opacity="0.3"/>
+
+            <!-- Cron Trigger -->
+            <rect x="110" y="54" width="100" height="30" rx="15" fill="#1e293b" stroke="#4b5563" stroke-width="1"/>
+            <text x="160" y="73" text-anchor="middle" fill="#9ca3af" font-size="10" font-family="system-ui,sans-serif">Nightly Cron</text>
+
+            <!-- Arrow: cron to cartograph -->
+            <line x1="160" y1="84" x2="160" y2="100" stroke="#4b5563" stroke-width="1.2" marker-end="url(#ah)"/>
+
+            <!-- Cartograph -->
+            <rect x="62" y="104" width="196" height="48" rx="6" fill="#172554" stroke="#3b82f6" stroke-width="1.2" filter="url(#glow-blue)"/>
+            <text x="86" y="125" fill="#60a5fa" font-size="10" font-weight="700" font-family="system-ui,sans-serif">CARTOGRAPH</text>
+            <text x="86" y="140" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">Component discovery (Syft)</text>
+            <rect x="70" y="114" width="8" height="8" rx="2" fill="#3b82f6" opacity="0.6"/>
+
+            <!-- Arrow -->
+            <line x1="160" y1="152" x2="160" y2="168" stroke="#4b5563" stroke-width="1.2" marker-end="url(#ah)"/>
+
+            <!-- Auditor -->
+            <rect x="62" y="172" width="196" height="48" rx="6" fill="#172554" stroke="#3b82f6" stroke-width="1.2" filter="url(#glow-blue)"/>
+            <text x="86" y="193" fill="#60a5fa" font-size="10" font-weight="700" font-family="system-ui,sans-serif">AUDITOR</text>
+            <text x="86" y="208" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">License + CVE scan (Trivy)</text>
+            <rect x="70" y="182" width="8" height="8" rx="2" fill="#3b82f6" opacity="0.6"/>
+
+            <!-- Arrow -->
+            <line x1="160" y1="220" x2="160" y2="236" stroke="#4b5563" stroke-width="1.2" marker-end="url(#ah)"/>
+
+            <!-- Fuse -->
+            <rect x="62" y="240" width="196" height="44" rx="6" fill="#0f172a" stroke="#6366f1" stroke-width="1.2" filter="url(#glow-indigo)"/>
+            <text x="86" y="259" fill="#818cf8" font-size="10" font-weight="700" font-family="system-ui,sans-serif">FUSE</text>
+            <text x="86" y="273" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">PURL-union merge</text>
+            <rect x="70" y="250" width="8" height="8" rx="2" fill="#6366f1" opacity="0.6"/>
+
+            <!-- Arrow -->
+            <line x1="160" y1="284" x2="160" y2="300" stroke="#4b5563" stroke-width="1.2" marker-end="url(#ah)"/>
+
+            <!-- Sentinel -->
+            <rect x="62" y="304" width="196" height="48" rx="6" fill="#172554" stroke="#3b82f6" stroke-width="1.2" filter="url(#glow-blue)"/>
+            <text x="86" y="325" fill="#60a5fa" font-size="10" font-weight="700" font-family="system-ui,sans-serif">SENTINEL</text>
+            <text x="86" y="340" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">Vuln matching (Grype)</text>
+            <rect x="70" y="314" width="8" height="8" rx="2" fill="#3b82f6" opacity="0.6"/>
+
+            <!-- Arrow -->
+            <line x1="160" y1="352" x2="160" y2="368" stroke="#4b5563" stroke-width="1.2" marker-end="url(#ah)"/>
+
+            <!-- Licenser -->
+            <rect x="62" y="372" width="196" height="48" rx="6" fill="#172554" stroke="#3b82f6" stroke-width="1.2" filter="url(#glow-blue)"/>
+            <text x="86" y="393" fill="#60a5fa" font-size="10" font-weight="700" font-family="system-ui,sans-serif">LICENSER</text>
+            <text x="86" y="408" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">deps.dev / GitHub fallback</text>
+            <rect x="70" y="382" width="8" height="8" rx="2" fill="#3b82f6" opacity="0.6"/>
+
+            <!-- Arrow to DB -->
+            <line x1="160" y1="420" x2="160" y2="440" stroke="#3b82f6" stroke-width="1.2" marker-end="url(#ah-blue)"/>
+
+            <!-- DB + S3 -->
+            <rect x="62" y="444" width="196" height="44" rx="6" fill="#064e3b" stroke="#22c55e" stroke-width="1.2" filter="url(#glow-green)"/>
+            <text x="86" y="463" fill="#34d399" font-size="10" font-weight="700" font-family="system-ui,sans-serif">POSTGRES + S3</text>
+            <text x="86" y="477" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">SBOM inventory store</text>
+            <rect x="70" y="454" width="8" height="8" rx="2" fill="#22c55e" opacity="0.6"/>
+
+
+            <!-- ══════════ SIDE B: News Ingestion (right column) ══════════ -->
+            <text x="780" y="32" text-anchor="middle" fill="#6366f1" font-size="11" font-weight="700" letter-spacing="0.1em" font-family="system-ui,sans-serif">SIDE B &mdash; NEWS INGESTION AGENT</text>
+            <line x1="660" y1="42" x2="900" y2="42" stroke="#6366f1" stroke-width="1" opacity="0.3"/>
+
+            <!-- Polling trigger -->
+            <rect x="730" y="54" width="100" height="30" rx="15" fill="#1e293b" stroke="#4b5563" stroke-width="1"/>
+            <text x="780" y="73" text-anchor="middle" fill="#9ca3af" font-size="10" font-family="system-ui,sans-serif">Every 30m</text>
+
+            <line x1="780" y1="84" x2="780" y2="100" stroke="#4b5563" stroke-width="1.2" marker-end="url(#ah)"/>
+
+            <!-- RSS + API Feeds -->
+            <rect x="682" y="104" width="196" height="48" rx="6" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.2" filter="url(#glow-indigo)"/>
+            <text x="706" y="125" fill="#818cf8" font-size="10" font-weight="700" font-family="system-ui,sans-serif">FEED FETCHER</text>
+            <text x="706" y="140" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">20 RSS + 2 APIs (22 sources)</text>
+            <rect x="690" y="114" width="8" height="8" rx="2" fill="#6366f1" opacity="0.6"/>
+
+            <line x1="780" y1="152" x2="780" y2="168" stroke="#4b5563" stroke-width="1.2" marker-end="url(#ah)"/>
+
+            <!-- Relevance Filter -->
+            <rect x="682" y="172" width="196" height="48" rx="6" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.2" filter="url(#glow-indigo)"/>
+            <text x="706" y="193" fill="#818cf8" font-size="10" font-weight="700" font-family="system-ui,sans-serif">RELEVANCE FILTER</text>
+            <text x="706" y="208" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">Keywords + vendor blocklist</text>
+            <rect x="690" y="182" width="8" height="8" rx="2" fill="#6366f1" opacity="0.6"/>
+
+            <line x1="780" y1="220" x2="780" y2="236" stroke="#4b5563" stroke-width="1.2" marker-end="url(#ah)"/>
+
+            <!-- Dedup -->
+            <rect x="682" y="240" width="196" height="48" rx="6" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.2" filter="url(#glow-indigo)"/>
+            <text x="706" y="259" fill="#818cf8" font-size="10" font-weight="700" font-family="system-ui,sans-serif">DEDUPLICATION</text>
+            <text x="706" y="273" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">URL + fuzzy + LLM semantic</text>
+            <rect x="690" y="250" width="8" height="8" rx="2" fill="#6366f1" opacity="0.6"/>
+
+            <line x1="780" y1="288" x2="780" y2="304" stroke="#4b5563" stroke-width="1.2" marker-end="url(#ah)"/>
+
+            <!-- LLM Enrichment -->
+            <rect x="682" y="308" width="196" height="48" rx="6" fill="#1e1b4b" stroke="#a855f7" stroke-width="1.2" filter="url(#glow-purple)"/>
+            <text x="706" y="329" fill="#c084fc" font-size="10" font-weight="700" font-family="system-ui,sans-serif">LLM ENRICHMENT</text>
+            <text x="706" y="344" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">Classify + extract packages</text>
+            <rect x="690" y="318" width="8" height="8" rx="2" fill="#a855f7" opacity="0.6"/>
+
+            <!-- Claude badge -->
+            <rect x="838" y="318" width="32" height="16" rx="8" fill="#a855f7" opacity="0.2" stroke="#a855f7" stroke-width="0.8"/>
+            <text x="854" y="330" text-anchor="middle" fill="#c084fc" font-size="7" font-weight="700" font-family="system-ui,sans-serif">LLM</text>
+
+            <line x1="780" y1="356" x2="780" y2="372" stroke="#4b5563" stroke-width="1.2" marker-end="url(#ah)"/>
+
+            <!-- Fulltext Recovery -->
+            <rect x="682" y="376" width="196" height="44" rx="6" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.2" filter="url(#glow-indigo)"/>
+            <text x="706" y="395" fill="#818cf8" font-size="10" font-weight="700" font-family="system-ui,sans-serif">VERSION RECOVERY</text>
+            <text x="706" y="409" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">Fulltext scrape for versions</text>
+            <rect x="690" y="386" width="8" height="8" rx="2" fill="#6366f1" opacity="0.6"/>
+
+            <!-- Arrow to news DB insert -->
+            <line x1="780" y1="420" x2="780" y2="444" stroke="#6366f1" stroke-width="1.2" marker-end="url(#ah)"/>
+
+            <!-- News DB -->
+            <rect x="682" y="444" width="196" height="44" rx="6" fill="#064e3b" stroke="#22c55e" stroke-width="1.2" filter="url(#glow-green)"/>
+            <text x="706" y="463" fill="#34d399" font-size="10" font-weight="700" font-family="system-ui,sans-serif">POSTGRES</text>
+            <text x="706" y="477" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">aegis_news + feed_state</text>
+            <rect x="690" y="454" width="8" height="8" rx="2" fill="#22c55e" opacity="0.6"/>
+
+
+            <!-- ══════════ MATCH ENGINE (center) ══════════ -->
+            <text x="480" y="418" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="700" letter-spacing="0.1em" font-family="system-ui,sans-serif">MATCH ENGINE</text>
+
+            <!-- Central match engine box -->
+            <rect x="350" y="428" width="260" height="60" rx="8" fill="#450a0a" stroke="#ef4444" stroke-width="1.5" filter="url(#glow-red)"/>
+            <text x="382" y="453" fill="#fca5a5" font-size="10" font-weight="700" font-family="system-ui,sans-serif">SBOM LOOKUP + VERSION COMPARE</text>
+            <text x="382" y="469" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">Exact &rarr; Fuzzy &rarr; Not Found &rarr; Classify</text>
+            <rect x="362" y="443" width="10" height="10" rx="2" fill="#ef4444" opacity="0.5"/>
+
+            <!-- Arrow: SBOM DB to Match Engine -->
+            <line x1="258" y1="466" x2="348" y2="460" stroke="#22c55e" stroke-width="1.2" marker-end="url(#ah-green)"/>
+
+            <!-- Arrow: News DB to Match Engine -->
+            <line x1="682" y1="466" x2="612" y2="460" stroke="#22c55e" stroke-width="1.2" marker-end="url(#ah-green)"/>
+
+
+            <!-- ══════════ OUTPUTS (bottom row) ══════════ -->
+
+            <!-- Arrow: Match to Slack -->
+            <line x1="420" y1="488" x2="370" y2="530" stroke="#f59e0b" stroke-width="1.2" marker-end="url(#ah-amber)"/>
+
+            <!-- Slack -->
+            <rect x="280" y="534" width="180" height="50" rx="6" fill="#422006" stroke="#f59e0b" stroke-width="1.2" filter="url(#glow-amber)"/>
+            <text x="304" y="555" fill="#fbbf24" font-size="10" font-weight="700" font-family="system-ui,sans-serif">SLACK ALERTS</text>
+            <text x="304" y="569" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">Block Kit + thread replies</text>
+            <rect x="290" y="545" width="8" height="8" rx="2" fill="#f59e0b" opacity="0.6"/>
+
+            <!-- Arrow: Match to Validator -->
+            <line x1="540" y1="488" x2="590" y2="530" stroke="#ef4444" stroke-width="1.2" marker-end="url(#ah-red)"/>
+
+            <!-- Validator -->
+            <rect x="500" y="534" width="200" height="50" rx="6" fill="#450a0a" stroke="#ef4444" stroke-width="1.2" filter="url(#glow-red)"/>
+            <text x="524" y="555" fill="#fca5a5" font-size="10" font-weight="700" font-family="system-ui,sans-serif">ECS FARGATE VALIDATOR</text>
+            <text x="524" y="569" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">Reachability analysis per repo</text>
+            <rect x="510" y="545" width="8" height="8" rx="2" fill="#ef4444" opacity="0.6"/>
+
+            <!-- Validator to Slack arrow -->
+            <line x1="500" y1="559" x2="462" y2="559" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#ah-amber)"/>
+
+
+            <!-- ══════════ ASK AEGIS (bottom right) ══════════ -->
+
+            <!-- RAG Chatbot -->
+            <rect x="735" y="534" width="180" height="50" rx="6" fill="#2e1065" stroke="#a855f7" stroke-width="1.2" filter="url(#glow-purple)"/>
+            <text x="759" y="555" fill="#c084fc" font-size="10" font-weight="700" font-family="system-ui,sans-serif">ASK AEGIS (RAG)</text>
+            <text x="759" y="569" fill="#64748b" font-size="9" font-family="system-ui,sans-serif">Vector search + LLM chat</text>
+            <rect x="745" y="545" width="8" height="8" rx="2" fill="#a855f7" opacity="0.6"/>
+
+            <!-- Arrow from News DB to RAG -->
+            <line x1="825" y1="488" x2="825" y2="530" stroke="#a855f7" stroke-width="1.2" marker-end="url(#ah-purple)"/>
+
+            <!-- Arrow from SBOM DB to RAG (long sweep) -->
+            <path d="M 258 470 Q 320 510 735 559" fill="none" stroke="#a855f7" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#ah-purple)"/>
+
+
+            <!-- ══════════ Labels + legends ══════════ -->
+            <rect x="26" y="530" width="230" height="72" rx="6" fill="#111827" stroke="#1e293b" stroke-width="1"/>
+            <text x="42" y="548" fill="#64748b" font-size="8.5" font-weight="600" letter-spacing="0.08em" font-family="system-ui,sans-serif">TECH STACK</text>
+            <text x="42" y="564" fill="#94a3b8" font-size="9" font-family="system-ui,sans-serif">Python &middot; FastAPI &middot; PostgreSQL &middot; SQLAlchemy</text>
+            <text x="42" y="578" fill="#94a3b8" font-size="9" font-family="system-ui,sans-serif">Claude / Gemini &middot; Slack SDK &middot; AWS ECS</text>
+            <text x="42" y="592" fill="#94a3b8" font-size="9" font-family="system-ui,sans-serif">Syft &middot; Trivy &middot; Grype &middot; feedparser &middot; rapidfuzz</text>
+
+            <!-- Data flow label -->
+            <text x="480" y="508" text-anchor="middle" fill="#374151" font-size="8" font-style="italic" font-family="system-ui,sans-serif">supply_chain_vuln triggers match + alert</text>
+
+        </svg>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}

@@ -1,0 +1,581 @@
+<title>Aegis Buildathon Script</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #F1F5F9;
+  --surface: #FFFFFF;
+  --surface-alt: #E8EDF3;
+  --text: #1E293B;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
+  --accent: #0369A1;
+  --accent-light: #E0F2FE;
+  --scene-bg: #0B1426;
+  --scene-text: #00D4FF;
+  --warn: #D97706;
+  --warn-bg: #FEF3C7;
+  --crit: #DC2626;
+  --crit-bg: #FEE2E2;
+  --ok: #059669;
+  --ok-bg: #D1FAE5;
+  --border: #CBD5E1;
+  --code-bg: #F8FAFC;
+  --stripe: #0369A1;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B1426;
+    --surface: #111D32;
+    --surface-alt: #162340;
+    --text: #E2E8F0;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+    --accent: #00D4FF;
+    --accent-light: #0C2D4A;
+    --scene-bg: #060D1A;
+    --scene-text: #00D4FF;
+    --warn: #F59E0B;
+    --warn-bg: #422006;
+    --crit: #EF4444;
+    --crit-bg: #450A0A;
+    --ok: #34D399;
+    --ok-bg: #064E3B;
+    --border: #1E3A5F;
+    --code-bg: #0D1B2A;
+    --stripe: #00D4FF;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B1426;
+  --surface: #111D32;
+  --surface-alt: #162340;
+  --text: #E2E8F0;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --accent: #00D4FF;
+  --accent-light: #0C2D4A;
+  --scene-bg: #060D1A;
+  --scene-text: #00D4FF;
+  --warn: #F59E0B;
+  --warn-bg: #422006;
+  --crit: #EF4444;
+  --crit-bg: #450A0A;
+  --ok: #34D399;
+  --ok-bg: #064E3B;
+  --border: #1E3A5F;
+  --code-bg: #0D1B2A;
+  --stripe: #00D4FF;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.65;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+/* ─── Header ─── */
+.script-header {
+  text-align: center;
+  padding: 2.5rem 1.5rem 2rem;
+  margin-bottom: 2.5rem;
+  border-bottom: 2px solid var(--border);
+}
+.script-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 0.35rem;
+  text-wrap: balance;
+}
+.script-header h1 .accent { color: var(--accent); }
+.script-header .subtitle {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  margin: 0 0 1.2rem;
+}
+.meta-row {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.meta-row span { white-space: nowrap; }
+
+/* ─── Scene block ─── */
+.scene {
+  margin-bottom: 2rem;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.scene-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: var(--scene-bg);
+  color: var(--scene-text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.scene-bar .time-badge {
+  background: var(--scene-text);
+  color: var(--scene-bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.scene-bar .scene-title { flex: 1; }
+.scene-bar .duration {
+  opacity: 0.6;
+  font-size: 0.7rem;
+  font-weight: 400;
+}
+.scene-body { padding: 1.25rem 1.25rem 1rem; }
+
+/* ─── Content types ─── */
+.speak {
+  margin-bottom: 0.85rem;
+  padding-left: 0.85rem;
+  border-left: 3px solid var(--stripe);
+}
+.speak p { margin: 0; }
+.speak .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin-bottom: 0.2rem;
+}
+
+.action {
+  margin-bottom: 0.85rem;
+  padding: 0.6rem 0.85rem;
+  background: var(--accent-light);
+  border-radius: 5px;
+  font-size: 0.88rem;
+}
+.action .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin-bottom: 0.15rem;
+}
+.action p { margin: 0; color: var(--text-secondary); }
+
+.cmd {
+  margin-bottom: 0.85rem;
+  padding: 0.55rem 0.85rem;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  color: var(--text);
+  overflow-x: auto;
+}
+.cmd .prompt { color: var(--ok); }
+
+.note {
+  margin-bottom: 0.85rem;
+  padding: 0.5rem 0.85rem;
+  background: var(--warn-bg);
+  border-radius: 5px;
+  font-size: 0.82rem;
+  color: var(--warn);
+}
+.note.crit { background: var(--crit-bg); color: var(--crit); }
+.note.ok { background: var(--ok-bg); color: var(--ok); }
+
+.beat {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-style: italic;
+  margin: 0.5rem 0;
+}
+
+/* ─── Outline ─── */
+.outline {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2.5rem;
+}
+.outline h2 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin: 0 0 0.75rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.outline-grid {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.3rem 1rem;
+  font-size: 0.88rem;
+  align-items: baseline;
+}
+.outline-grid .ts {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.outline-grid .name { font-weight: 600; }
+.outline-grid .dur {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* ─── Tips box ─── */
+.tips {
+  background: var(--surface-alt);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2.5rem;
+}
+.tips h2 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: 0 0 0.6rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+.tips ul {
+  margin: 0; padding: 0 0 0 1.2rem;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+.tips li { margin-bottom: 0.35rem; }
+.tips li:last-child { margin-bottom: 0; }
+
+@media (max-width: 640px) {
+  body { padding: 1.5rem 1rem 3rem; }
+  .script-header h1 { font-size: 1.5rem; }
+  .meta-row { flex-direction: column; gap: 0.3rem; align-items: center; }
+  .outline-grid { font-size: 0.82rem; }
+}
+</style>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="script-header">
+  <h1><span class="accent">Aegis</span> &mdash; Buildathon Demo Script</h1>
+  <p class="subtitle">Supply Chain Risk Tracker &middot; 5-Minute Video Recording Guide</p>
+  <div class="meta-row">
+    <span>Total: 5:00</span>
+    <span>Scenes: 7</span>
+    <span>Format: screen recording + voiceover</span>
+  </div>
+</div>
+
+<!-- ─── Outline ─── -->
+<div class="outline">
+  <h2>Run of Show</h2>
+  <div class="outline-grid">
+    <span class="ts">0:00</span> <span class="name">Scene 1 &mdash; Hook &amp; Problem</span> <span class="dur">0:40</span>
+    <span class="ts">0:40</span> <span class="name">Scene 2 &mdash; Architecture Overview</span> <span class="dur">0:35</span>
+    <span class="ts">1:15</span> <span class="name">Scene 3 &mdash; SBOM/SCA Pipeline Demo</span> <span class="dur">0:50</span>
+    <span class="ts">2:05</span> <span class="name">Scene 4 &mdash; News Ingestion Agent Demo</span> <span class="dur">0:55</span>
+    <span class="ts">3:00</span> <span class="name">Scene 5 &mdash; Match Engine + Validator</span> <span class="dur">0:45</span>
+    <span class="ts">3:45</span> <span class="name">Scene 6 &mdash; Ask Aegis RAG Chatbot + Dashboard</span> <span class="dur">0:45</span>
+    <span class="ts">4:30</span> <span class="name">Scene 7 &mdash; Wrap-Up &amp; Impact</span> <span class="dur">0:30</span>
+  </div>
+</div>
+
+<!-- ─── Tips ─── -->
+<div class="tips">
+  <h2>Recording Tips</h2>
+  <ul>
+    <li>Run <code>aegis demo full</code> <strong>before</strong> recording so the output is cached and ready. Use <code>--fast</code> to skip delays during dry runs.</li>
+    <li>Start the web dashboard with <code>aegis web --demo</code> in a separate terminal before recording Scene 6.</li>
+    <li>Keep your terminal at 120 columns wide, font size 16pt+ so text is readable in the recording.</li>
+    <li>Speak at a measured pace. Each "Say" block is calibrated to fit its scene's time slot at natural speed.</li>
+    <li>Blue stripe blocks = what you say. Teal boxes = what you do on screen. Dark code blocks = commands to type.</li>
+  </ul>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- SCENE 1 -->
+<div class="scene">
+  <div class="scene-bar">
+    <span class="time-badge">0:00</span>
+    <span class="scene-title">Scene 1 &mdash; Hook &amp; Problem</span>
+    <span class="duration">40 sec</span>
+  </div>
+  <div class="scene-body">
+
+    <div class="action">
+      <div class="label">Show on screen</div>
+      <p>Open the Aegis web dashboard at <code>localhost:8000</code>. The dashboard is loaded with demo data showing alerts, stats, and pipeline status.</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>Imagine it's 2 AM. A popular npm package your company depends on &mdash; used in 40 of your repositories &mdash; has just been compromised. A hijacked maintainer account pushed a backdoored version with an embedded RAT. Your security team finds out from a tweet &mdash; four hours later.</p>
+    </div>
+
+    <p class="beat">pause briefly</p>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>That's the gap Aegis closes. Aegis is an <strong>AI-powered supply chain risk tracker</strong> that continuously monitors security feeds, automatically cross-references threats against your actual software inventory, and tells you within minutes &mdash; not hours &mdash; whether you're affected and exactly which repos need action.</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>Let me show you how it works, end to end.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- SCENE 2 -->
+<div class="scene">
+  <div class="scene-bar">
+    <span class="time-badge">0:40</span>
+    <span class="scene-title">Scene 2 &mdash; Architecture Overview</span>
+    <span class="duration">35 sec</span>
+  </div>
+  <div class="scene-body">
+
+    <div class="action">
+      <div class="label">Show on screen</div>
+      <p>Switch to a slide or diagram showing Aegis's architecture: two pipelines (SBOM/SCA on the left, News Ingestion on the right) converging into the Match Engine in the center, with Slack notifications and a Validator stage below. Below everything, the Ask Aegis RAG chatbot.</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>Aegis has two independent data pipelines that converge at a central match engine.</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p><strong>Side A</strong> is the SBOM/SCA pipeline. It scans every repository in your organization using Syft, Trivy, and Grype &mdash; we call them <em>Cartograph</em>, <em>Auditor</em>, and <em>Sentinel</em> &mdash; to build a complete inventory of every dependency, its version, its license, and known vulnerabilities. This runs nightly on a cron.</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p><strong>Side B</strong> is the news ingestion agent. It polls 22 security sources &mdash; RSS feeds from Socket.dev, Snyk, CISA, The Hacker News, plus the NVD and CVE Crowd APIs &mdash; every 30 minutes. Articles pass through a keyword relevance filter, a vendor blocklist, a three-phase deduplication system, and then an LLM enrichment stage that classifies each article and extracts structured package data.</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>When a <strong>supply chain vulnerability</strong> is detected, the <strong>match engine</strong> cross-references it against the SBOM inventory, fires a Slack alert, and spawns ECS Fargate validators for reachability analysis. And <strong>Ask Aegis</strong>, our RAG chatbot, lets anyone on the team query the entire knowledge base in natural language. Let's walk through each stage.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- SCENE 3 -->
+<div class="scene">
+  <div class="scene-bar">
+    <span class="time-badge">1:15</span>
+    <span class="scene-title">Scene 3 &mdash; SBOM/SCA Pipeline Demo</span>
+    <span class="duration">50 sec</span>
+  </div>
+  <div class="scene-body">
+
+    <div class="action">
+      <div class="label">Show on screen</div>
+      <p>Switch to terminal. Make sure it's clean and wide.</p>
+    </div>
+
+    <div class="cmd"><span class="prompt">$</span> aegis demo sbom --fast</div>
+
+    <div class="speak">
+      <div class="label">Say (while output scrolls)</div>
+      <p>Here's the SBOM pipeline running against a sample repository called <em>checkout-service</em>. Six stages:</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>First, <strong>Cartograph</strong> &mdash; our Syft wrapper &mdash; discovers 142 components. Then <strong>Auditor</strong> &mdash; wrapping Trivy &mdash; independently finds 138 components with license metadata that Cartograph doesn't capture. Stage three <strong>fuses</strong> these two SBOMs by PURL union into a merged inventory of 146 unique components.</p>
+    </div>
+
+    <div class="note">Point at the terminal output as each stage completes</div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>Now <strong>Sentinel</strong> &mdash; our Grype wrapper &mdash; matches this merged SBOM against vulnerability databases: NVD, GitHub Advisories, and distro feeds. It finds 4 vulnerabilities, including a <strong>critical</strong> one in axios version 1.14.1 &mdash; a backdoored release.</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>The <strong>Licenser</strong> then enriches missing license data through a three-tier waterfall: pattern rules, the deps.dev API, and GitHub API fallback &mdash; reaching 95% coverage. Finally, everything is uploaded to S3 and Postgres. The SBOM pipeline takes about 4 seconds per repo &mdash; we run it nightly across the entire organization.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- SCENE 4 -->
+<div class="scene">
+  <div class="scene-bar">
+    <span class="time-badge">2:05</span>
+    <span class="scene-title">Scene 4 &mdash; News Ingestion Agent Demo</span>
+    <span class="duration">55 sec</span>
+  </div>
+  <div class="scene-body">
+
+    <div class="cmd"><span class="prompt">$</span> aegis demo news --fast</div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>Now the news side. The agent polls 22 sources organized in four tiers &mdash; from supply-chain first responders like Socket.dev and Snyk, through deep-analysis outlets like Unit42 and Wiz, government feeds from CISA and NVD, down to general security press. Plus two API sources: the NVD critical-CVE endpoint and CVE Crowd's trending feed.</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>This cycle fetched 8 new articles. Watch the <strong>relevance filter</strong> &mdash; it's keyword-based across categories like supply chain, ecosystems, severity, and breach indicators. It also runs a <strong>vendor blocklist</strong>: Citrix and FortiGate articles get blocked because we don't run that infrastructure, but it has override logic &mdash; if a blocklisted vendor's article also mentions npm or supply chain, it gets rescued.</p>
+    </div>
+
+    <div class="note">Point at the PASS/BLOCK lines in the output</div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>Next is <strong>three-phase deduplication</strong>: exact URL match, fuzzy title comparison with Jaccard similarity, and then LLM-powered semantic dedup. Notice it catches that the two axios articles from different sources are the same incident &mdash; Jaccard score 0.73, above our 0.70 threshold.</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>Finally, the <strong>LLM enrichment</strong> stage. Each article is sent to an LLM with a carefully engineered prompt that classifies it into one of three buckets: <em>supply_chain_vuln</em> for dependency-level threats, <em>threat_intel</em> for infrastructure vulnerabilities like Grafana, or <em>general_info</em>. For supply chain vulns, it extracts the real installable package name, ecosystem, and version constraints. The enrichment prompt has strict rules &mdash; vulnerability nicknames like "Log4Shell" get translated to actual package names, and vague version strings get rejected.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- SCENE 5 -->
+<div class="scene">
+  <div class="scene-bar">
+    <span class="time-badge">3:00</span>
+    <span class="scene-title">Scene 5 &mdash; Match Engine + Validator</span>
+    <span class="duration">45 sec</span>
+  </div>
+  <div class="scene-body">
+
+    <div class="cmd"><span class="prompt">$</span> aegis demo match --fast</div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>This is the bridge &mdash; where threat intelligence meets your actual inventory. The match engine takes the structured package data from the news pipeline and queries the SBOM database.</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>For axios, it runs a four-step lookup: first an exact name match scoped to the npm ecosystem, then without ecosystem, then a fuzzy match using rapidfuzz for typos and naming divergence, and finally a "not found" safe designation. It finds 40 repos using axios. Now it compares each repo's installed version against the vulnerable range &mdash; 1.14.1 and 0.30.4. Three repos are flagged <strong>vulnerable</strong>. Thirty-seven are safe.</p>
+    </div>
+
+    <div class="note crit">Point at the VULNERABLE vs safe markers scrolling in the output</div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>For the typosquat package "reqeusts" &mdash; misspelling of requests &mdash; it's not found in any SBOM. Automatically marked safe. No alert, no noise.</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>For the three vulnerable repos, Aegis spawns <strong>ECS Fargate tasks</strong> that perform reachability analysis &mdash; does the vulnerable code path actually get exercised? Two repos are confirmed <strong>reachable</strong>, meaning the backdoored axios code is actively called. One repo imported it but never calls it &mdash; lower priority. All of this posts automatically to the Slack thread.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- SCENE 6 -->
+<div class="scene">
+  <div class="scene-bar">
+    <span class="time-badge">3:45</span>
+    <span class="scene-title">Scene 6 &mdash; Ask Aegis RAG Chatbot + Dashboard</span>
+    <span class="duration">45 sec</span>
+  </div>
+  <div class="scene-body">
+
+    <div class="action">
+      <div class="label">Show on screen</div>
+      <p>Switch back to browser with the Aegis web dashboard at <code>localhost:8000</code>. Briefly show the dashboard stats, recent alerts, and pipeline status.</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>Here's the Aegis web dashboard &mdash; it shows the complete picture at a glance: repos scanned, total components tracked, active vulnerabilities, and recent alerts ranked by impact score. Each alert shows its classification, source, and affected packages. But the real power is in the chatbot.</p>
+    </div>
+
+    <div class="action">
+      <div class="label">Show on screen</div>
+      <p>Navigate to the chat page, or switch to terminal and run the command below.</p>
+    </div>
+
+    <div class="cmd"><span class="prompt">$</span> aegis demo chat --fast</div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p><strong>Ask Aegis</strong> is a RAG-powered security chatbot. It indexes your SBOM inventory, news articles, match results, and remediation guides into a vector store. When someone asks "Are we affected by the axios compromise?", it retrieves the four most relevant sources &mdash; the news article, the match result, a remediation playbook, and a related incident &mdash; and generates a grounded, cited answer.</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>It tells you: yes, three repos are affected, here they are by name and version, two have confirmed reachable code paths, and here are your four remediation steps in priority order. It can also pull in historical context &mdash; similar past incidents like the event-stream compromise of 2018 or the ua-parser-js hijack &mdash; to inform the response. Every answer cites its sources and says "I don't know" when the knowledge base doesn't have the answer.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- SCENE 7 -->
+<div class="scene">
+  <div class="scene-bar">
+    <span class="time-badge">4:30</span>
+    <span class="scene-title">Scene 7 &mdash; Wrap-Up &amp; Impact</span>
+    <span class="duration">30 sec</span>
+  </div>
+  <div class="scene-body">
+
+    <div class="action">
+      <div class="label">Show on screen</div>
+      <p>Switch back to the web dashboard overview, or show the final summary output from <code>aegis demo full</code>.</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>Let me recap what just happened. A real-world supply chain attack was detected from an RSS feed within 30 minutes. It was automatically filtered, deduplicated, enriched by an LLM, and cross-referenced against our SBOM inventory of 146 components across 40 repositories. Three vulnerable repos were identified, reachability analysis confirmed two actively use the compromised code, and the entire team was notified on Slack with actionable details &mdash; all before most teams would even know the incident existed.</p>
+    </div>
+
+    <p class="beat">pause briefly, look at camera</p>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>The key insight behind Aegis: <strong>a threat intelligence feed becomes valuable exactly at the point it stops being about the world and starts being about <em>you</em></strong> &mdash; "does this actually affect something I actually run?" That's the question Aegis answers, automatically, in minutes.</p>
+    </div>
+
+    <div class="speak">
+      <div class="label">Say</div>
+      <p>Aegis is built with Python, FastAPI, PostgreSQL, Claude, and integrates with Slack, AWS ECS, and the NVD API. Everything you just saw runs from a single CLI: <code>aegis</code>. Thank you.</p>
+    </div>
+
+    <div class="note ok">End recording. Total time target: 5:00.</div>
+  </div>
+</div>

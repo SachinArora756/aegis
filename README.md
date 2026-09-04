@@ -8,21 +8,35 @@ Aegis runs two pipelines — **SBOM/SCA** and **News Ingestion** — connected b
 
 ### Pipeline Overview
 
-```
-SBOM/SCA Pipeline          News Ingestion Agent
-  Cartograph                   22 RSS feeds + APIs
-  Auditor                      Relevance filter
-  Fuse (PURL merge)            3-phase dedup
-  Sentinel                     LLM enrichment (Gemini)
-  Licenser                     Version recovery
-        \                    /
-         --- Match Engine ---
-               |
-          Validator (ECS)
-               |
-         Ask Aegis (RAG)
-               |
-        Slack / Dashboard
+```mermaid
+flowchart TD
+    subgraph SideA["SBOM / SCA Pipeline"]
+        A1["Cartograph\n(Syft)"] --> A2["Auditor\n(Trivy)"]
+        A2 --> A3["Fuse\n(PURL Merge)"]
+        A3 --> A4["Sentinel\n(Grype)"]
+        A4 --> A5["Licenser\n(deps.dev + GitHub)"]
+    end
+
+    subgraph SideB["News Ingestion Agent"]
+        B1["22 RSS Feeds\n+ 2 APIs"] --> B2["Relevance Filter\n(Keywords + Blocklist)"]
+        B2 --> B3["3-Phase Dedup\n(URL + Fuzzy + LLM)"]
+        B3 --> B4["LLM Enrichment\n(Gemini)"]
+        B4 --> B5["Version Recovery"]
+    end
+
+    A5 --> M["Match Engine\n(Exact → Fuzzy → Semver)"]
+    B5 --> M
+
+    M --> V["Validator\n(ECS Fargate)"]
+    M --> S["Slack Alerts"]
+    V --> RAG["Ask Aegis\n(RAG Chatbot)"]
+    M --> RAG
+    RAG --> D["Web Dashboard\n(FastAPI + Tailwind)"]
+
+    M --> DB[("PostgreSQL\n+ pgvector")]
+    A5 --> DB
+    B5 --> DB
+    A5 --> S3[("S3\nSBOM Storage")]
 ```
 
 ### Key Features

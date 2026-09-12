@@ -36,7 +36,8 @@ async function loadRecentAlerts() {
   const container = document.getElementById('recent-alerts');
   if (!container) return;
   try {
-    const articles = await fetchJSON('/api/news/articles?limit=10');
+    const resp = await fetchJSON('/api/news/articles?limit=10');
+    const articles = resp.articles ?? resp;
     if (!articles.length) {
       container.innerHTML = '<p class="text-gray-500 text-sm text-center py-8">No recent alerts. Run a news cycle or demo to see results.</p>';
       return;

@@ -116,6 +116,7 @@ async def news_detail(request: Request, idx: int):
 async def api_news_articles(
     classification: str | None = Query(None),
     search: str | None = Query(None),
+    limit: int | None = Query(None),
 ):
     if is_demo_mode():
         articles = _enriched_articles()
@@ -127,6 +128,8 @@ async def api_news_articles(
     if search:
         q = search.lower()
         articles = [a for a in articles if q in a["title"].lower() or q in a.get("summary", "").lower()]
+    if limit is not None and limit > 0:
+        articles = articles[:limit]
     return {"articles": articles, "total": len(articles)}
 
 
